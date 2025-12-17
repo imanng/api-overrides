@@ -1,0 +1,55 @@
+{
+  "version": "1.0",
+  "exportedAt": "2024-01-01T00:00:00.000Z",
+  "overrides": [
+    {
+      "method": "GET",
+      "path": "/api/users/123",
+      "headers": null,
+      "body": null,
+      "status": 200,
+      "responseBody": {
+        "id": 123,
+        "name": "John Doe",
+        "email": "john@example.com"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/users",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "name": "Jane Doe"
+      },
+      "status": 201,
+      "responseBody": {
+        "id": 456,
+        "name": "Jane Doe",
+        "email": "jane@example.com",
+        "createdAt": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/wines/reds?aaa=1",
+      "headers": null,
+      "body": null,
+      "status": 200,
+      "responseBody": [
+        {
+          "winery": "Sample Winery",
+          "wine": "Sample Wine 2020",
+          "rating": {
+            "average": "4.5",
+            "reviews": "100 ratings"
+          },
+          "location": "Sample Location",
+          "image": "https://example.com/wine.jpg",
+          "id": 1
+        }
+      ]
+    }
+  ]
+}

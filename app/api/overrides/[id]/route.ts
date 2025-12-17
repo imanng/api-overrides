@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkDuplicateOverride } from '@/lib/validation'
 import type { UpdateOverrideInput } from '@/types/override'
 
 interface RouteParams {
@@ -62,6 +63,32 @@ export async function PUT(
       return NextResponse.json(
         { error: 'Override not found' },
         { status: 404 }
+      )
+    }
+
+    // Determine the values to check for duplicates
+    const methodToCheck = body.method !== undefined ? body.method : existing.method
+    const pathToCheck = body.path !== undefined ? body.path : existing.path
+    const headersToCheck = body.headers !== undefined 
+      ? body.headers 
+      : (existing.headers ? JSON.parse(existing.headers) : null)
+    const bodyToCheck = body.body !== undefined 
+      ? body.body 
+      : (existing.body ? JSON.parse(existing.body) : null)
+
+    // Check for duplicate override (excluding current override)
+    const isDuplicate = await checkDuplicateOverride(
+      methodToCheck,
+      pathToCheck,
+      headersToCheck,
+      bodyToCheck,
+      id
+    )
+
+    if (isDuplicate) {
+      return NextResponse.json(
+        { error: 'An override with the same method, path, headers, and body already exists' },
+        { status: 409 }
       )
     }
 

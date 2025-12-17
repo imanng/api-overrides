@@ -1,20 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import type { Override } from "@/types/override";
 import OverrideList from "./components/OverrideList";
 import OverrideForm from "./components/OverrideForm";
 import ConfigForm from "./components/ConfigForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useToast } from "@/components/ui/toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function Home() {
   const [overrides, setOverrides] = useState<Override[]>([]);
@@ -24,6 +20,7 @@ export default function Home() {
     "overrides"
   );
   const [isLoading, setIsLoading] = useState(true);
+  const { addToast } = useToast();
 
   useEffect(() => {
     loadOverrides();
@@ -68,14 +65,88 @@ export default function Home() {
     setShowForm(true);
   };
 
+  const handleExport = async () => {
+    try {
+      const response = await fetch("/api/overrides/export");
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `api-overrides-${
+          new Date().toISOString().split("T")[0]
+        }.json`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        addToast("Failed to export overrides", "error");
+      }
+    } catch (error) {
+      console.error("Error exporting overrides:", error);
+      addToast("Failed to export overrides", "error");
+    }
+  };
+
+  const handleImport = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/overrides/import", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          addToast(
+            result.message ||
+              `Successfully imported ${result.created} override(s)`,
+            "success"
+          );
+          loadOverrides();
+        } else {
+          addToast(result.error || "Failed to import overrides", "error");
+        }
+      } catch (error) {
+        console.error("Error importing overrides:", error);
+        addToast("Failed to import overrides", "error");
+      }
+    };
+    input.click();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">API Overrides</h1>
-          <p className="text-muted-foreground">
-            Configure API overrides to intercept and modify API responses
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">API Overrides</h1>
+              <p className="text-muted-foreground">
+                Configure API overrides to intercept and modify API responses
+              </p>
+            </div>
+            <Link href="/samples">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                📚 Samples
+              </Button>
+            </Link>
+          </div>
         </header>
 
         <Tabs
@@ -95,7 +166,17 @@ export default function Home() {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold">API Overrides</h2>
-                  <Button onClick={handleNewOverride}>+ New Override</Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleExport}>
+                      📤 Export
+                    </Button>
+                    <Button variant="outline" onClick={handleImport}>
+                      📥 Import
+                    </Button>
+                    <Button variant="outline" onClick={handleNewOverride}>
+                      + New Override
+                    </Button>
+                  </div>
                 </div>
 
                 {isLoading ? (

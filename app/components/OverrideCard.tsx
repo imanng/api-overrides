@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAlertDialog } from "@/components/ui/alert-dialog";
 
 interface OverrideCardProps {
   override: Override;
@@ -18,29 +19,33 @@ export default function OverrideCard({
   onDelete,
 }: OverrideCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showConfirm, showAlert } = useAlertDialog();
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this override?")) {
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      const response = await fetch(`/api/overrides/${override.id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        onDelete(override.id);
-      } else {
-        alert("Failed to delete override");
+    showConfirm(
+      "Delete Override",
+      "Are you sure you want to delete this override? This action cannot be undone.",
+      () => {
+        setIsDeleting(true);
+        fetch(`/api/overrides/${override.id}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.ok) {
+              onDelete(override.id);
+            } else {
+              showAlert("Error", "Failed to delete override");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting override:", error);
+            showAlert("Error", "Failed to delete override");
+          })
+          .finally(() => {
+            setIsDeleting(false);
+          });
       }
-    } catch (error) {
-      console.error("Error deleting override:", error);
-      alert("Failed to delete override");
-    } finally {
-      setIsDeleting(false);
-    }
+    );
   };
 
   return (

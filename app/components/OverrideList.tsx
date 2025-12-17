@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import type { Override } from "@/types/override";
 import OverrideCard from "./OverrideCard";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface OverrideListProps {
   overrides: Override[];
@@ -20,9 +22,13 @@ export default function OverrideList({
       <Card>
         <CardContent className="py-12 text-center text-muted-foreground">
           <p>No overrides configured yet.</p>
-          <p className="text-sm mt-2">
-            Create your first override to get started.
+          <p className="text-sm mt-2 mb-4">
+            Create your first override to get started, or browse sample
+            overrides to see examples.
           </p>
+          <Link href="/samples">
+            <Button variant="ghost">📚 Browse Samples</Button>
+          </Link>
         </CardContent>
       </Card>
     );

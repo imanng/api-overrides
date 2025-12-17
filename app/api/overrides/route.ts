@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkDuplicateOverride } from '@/lib/validation'
 import type { CreateOverrideInput } from '@/types/override'
 
 // GET - List all overrides
@@ -41,6 +42,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Method, path, and responseBody are required' },
         { status: 400 }
+      )
+    }
+
+    // Check for duplicate override
+    const isDuplicate = await checkDuplicateOverride(
+      body.method,
+      body.path,
+      body.headers || null,
+      body.body || null
+    )
+
+    if (isDuplicate) {
+      return NextResponse.json(
+        { error: 'An override with the same method, path, headers, and body already exists' },
+        { status: 409 }
       )
     }
 

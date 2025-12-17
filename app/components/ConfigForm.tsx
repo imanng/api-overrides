@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAlertDialog } from "@/components/ui/alert-dialog";
 
 export default function ConfigForm() {
   const [baseUrl, setBaseUrl] = useState("");
@@ -15,6 +16,7 @@ export default function ConfigForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { showAlert } = useAlertDialog();
 
   useEffect(() => {
     loadConfig();
@@ -68,7 +70,7 @@ export default function ConfigForm() {
       });
 
       if (response.ok) {
-        alert("Configuration saved successfully!");
+        showAlert("Success", "Configuration saved successfully!");
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to save configuration");
@@ -144,7 +146,7 @@ export default function ConfigForm() {
         </p>
       </div>
 
-      <Button type="submit" disabled={isSaving}>
+      <Button type="submit" variant="outline" disabled={isSaving}>
         {isSaving ? "Saving..." : "Save Configuration"}
       </Button>
     </form>

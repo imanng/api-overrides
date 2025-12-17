@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/components/ui/toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface OverrideFormProps {
@@ -38,6 +39,7 @@ export default function OverrideForm({
   const [responseBody, setResponseBody] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (override) {
@@ -132,14 +134,20 @@ export default function OverrideForm({
       });
 
       if (response.ok) {
+        addToast(
+          override
+            ? "Override updated successfully"
+            : "Override created successfully",
+          "success"
+        );
         onSave();
       } else {
         const error = await response.json();
-        alert(error.error || "Failed to save override");
+        addToast(error.error || "Failed to save override", "error");
       }
     } catch (error) {
       console.error("Error saving override:", error);
-      alert("Failed to save override");
+      addToast("Failed to save override", "error");
     } finally {
       setIsSaving(false);
     }
@@ -250,10 +258,10 @@ export default function OverrideForm({
       </div>
 
       <div className="flex gap-3 pt-4">
-        <Button type="submit" disabled={isSaving}>
+        <Button type="submit" variant="outline" disabled={isSaving}>
           {isSaving ? "Saving..." : override ? "Update" : "Create"}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button type="button" variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
       </div>
