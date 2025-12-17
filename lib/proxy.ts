@@ -26,6 +26,11 @@ export async function proxyRequest(
   // Remove host header as it will be set by fetch
   delete headers['host']
   delete headers['Host']
+  
+  // Remove Accept-Encoding to prevent server from sending compressed responses
+  // Node.js fetch doesn't automatically decompress all compression formats (e.g., zstd)
+  delete headers['accept-encoding']
+  delete headers['Accept-Encoding']
 
   const fetchOptions: RequestInit = {
     method: request.method,
@@ -47,13 +52,25 @@ export async function proxyRequest(
     const response = await fetch(targetUrl, fetchOptions)
     
     // Get response body as text to preserve it
+    // Note: This automatically decompresses the body if it was compressed
     const responseText = await response.text()
 
-    // Create new response with same status and headers
+    // Create new headers object, filtering out compression-related headers
+    // since the body is now decompressed
+    const newHeaders = new Headers()
+    response.headers.forEach((value, key) => {
+      const lowerKey = key.toLowerCase()
+      // Skip compression and encoding headers since body is decompressed
+      if (!['content-encoding', 'content-length', 'transfer-encoding'].includes(lowerKey)) {
+        newHeaders.set(key, value)
+      }
+    })
+
+    // Create new response with same status and filtered headers
     return new Response(responseText, {
       status: response.status,
       statusText: response.statusText,
-      headers: response.headers,
+      headers: newHeaders,
     })
   } catch (error) {
     // Handle timeout or network errors

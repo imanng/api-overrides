@@ -46,6 +46,10 @@ async function handleRequest(
   try {
     const { path: pathSegments } = await params
     const path = '/' + pathSegments.join('/')
+    
+    // Build full path including query string for override matching
+    const searchParams = request.nextUrl.searchParams.toString()
+    const fullPathForMatching = path + (searchParams ? `?${searchParams}` : '')
 
     // Get all overrides
     const overrides = await prisma.override.findMany()
@@ -74,11 +78,11 @@ async function handleRequest(
       }
     }
 
-    // Check for matching override
+    // Check for matching override - use fullPathForMatching to include query string
     const matchingOverride = findMatchingOverride(
       {
         method: request.method,
-        path,
+        path: fullPathForMatching,
         headers,
         body,
       },
@@ -131,8 +135,7 @@ async function handleRequest(
       )
     }
 
-    // Build full URL for proxy
-    const searchParams = request.nextUrl.searchParams.toString()
+    // Build full URL for proxy (searchParams already extracted above)
     const fullPath = path + (searchParams ? `?${searchParams}` : '')
 
     // Proxy to main API - pass all headers through without comparison
@@ -154,7 +157,18 @@ async function handleRequest(
       }
     )
 
-    return proxyResponse
+    // Convert Response to NextResponse to ensure proper handling
+    const proxyResponseBody = await proxyResponse.text()
+    const responseHeaders: Record<string, string> = {}
+    proxyResponse.headers.forEach((value, key) => {
+      responseHeaders[key] = value
+    })
+
+    return new NextResponse(proxyResponseBody, {
+      status: proxyResponse.status,
+      statusText: proxyResponse.statusText,
+      headers: responseHeaders,
+    })
   } catch (error) {
     console.error('Error handling proxy request:', error)
     return NextResponse.json(
