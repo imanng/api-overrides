@@ -101,13 +101,21 @@ export default function OverrideCard({
         )}
 
         <div className="pt-3 border-t space-y-2">
-          <div className="flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-4 text-xs flex-wrap">
             <span>
               <span className="font-semibold text-muted-foreground">
                 Status:
               </span>{" "}
               <code>{override.status}</code>
             </span>
+            {override.ipAddress && (
+              <span>
+                <span className="font-semibold text-muted-foreground">IP:</span>{" "}
+                <code className="text-muted-foreground">
+                  {override.ipAddress}
+                </code>
+              </span>
+            )}
             <span>
               <span className="font-semibold text-muted-foreground">
                 Response:

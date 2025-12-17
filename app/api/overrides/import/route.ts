@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getClientIP } from '@/lib/get-client-ip'
 
 // POST - Import overrides from JSON file
 export async function POST(request: NextRequest) {
@@ -51,6 +52,9 @@ export async function POST(request: NextRequest) {
       errors: [] as string[],
     }
 
+    // Get client IP address for all imported overrides
+    const clientIP = getClientIP(request)
+
     for (const override of importData.overrides) {
       try {
         // Validate required fields
@@ -70,6 +74,7 @@ export async function POST(request: NextRequest) {
             body: override.body ? JSON.stringify(override.body) : null,
             status: override.status ?? 200,
             responseBody: JSON.stringify(override.responseBody),
+            ipAddress: clientIP,
           },
         })
 

@@ -18,6 +18,7 @@ model Override {
   body      String?  // JSON string of request body to match
   status    Int      @default(200) // Response status code
   responseBody String // JSON string of response body
+  ipAddress String?  // IP address of the user who created the override
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

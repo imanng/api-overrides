@@ -6,6 +6,7 @@ export interface Override {
   body: any | null
   status: number
   responseBody: any
+  ipAddress: string | null
   createdAt: Date
   updatedAt: Date
 }

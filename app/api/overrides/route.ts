@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkDuplicateOverride } from '@/lib/validation'
+import { getClientIP } from '@/lib/get-client-ip'
 import type { CreateOverrideInput } from '@/types/override'
 
 // GET - List all overrides
@@ -11,7 +12,7 @@ export async function GET() {
     })
 
     return NextResponse.json(
-      overrides.map((override: { id: string; method: string; path: string; headers: string | null; body: string | null; status: number; responseBody: string; createdAt: Date; updatedAt: Date }) => ({
+      overrides.map((override: { id: string; method: string; path: string; headers: string | null; body: string | null; status: number; responseBody: string; ipAddress: string | null; createdAt: Date; updatedAt: Date }) => ({
         id: override.id,
         method: override.method,
         path: override.path,
@@ -19,6 +20,7 @@ export async function GET() {
         body: override.body ? JSON.parse(override.body) : null,
         status: override.status,
         responseBody: JSON.parse(override.responseBody),
+        ipAddress: override.ipAddress,
         createdAt: override.createdAt,
         updatedAt: override.updatedAt,
       }))
@@ -60,6 +62,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get client IP address
+    const clientIP = getClientIP(request)
+
     const override = await prisma.override.create({
       data: {
         method: body.method.toUpperCase(),
@@ -68,6 +73,7 @@ export async function POST(request: NextRequest) {
         body: body.body ? JSON.stringify(body.body) : null,
         status: body.status ?? 200,
         responseBody: JSON.stringify(body.responseBody),
+        ipAddress: clientIP,
       },
     })
 
@@ -80,6 +86,7 @@ export async function POST(request: NextRequest) {
         body: override.body ? JSON.parse(override.body) : null,
         status: override.status,
         responseBody: JSON.parse(override.responseBody),
+        ipAddress: override.ipAddress,
         createdAt: override.createdAt,
         updatedAt: override.updatedAt,
       },

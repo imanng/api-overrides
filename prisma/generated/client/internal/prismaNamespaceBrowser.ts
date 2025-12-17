@@ -79,6 +79,7 @@ export const OverrideScalarFieldEnum = {
   body: 'body',
   status: 'status',
   responseBody: 'responseBody',
+  ipAddress: 'ipAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

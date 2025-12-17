@@ -86,7 +86,7 @@ async function handleRequest(
         headers,
         body,
       },
-      overrides.map((override: { id: string; method: string; path: string; headers: string | null; body: string | null; status: number; responseBody: string; createdAt: Date; updatedAt: Date }) => ({
+      overrides.map((override: { id: string; method: string; path: string; headers: string | null; body: string | null; status: number; responseBody: string; ipAddress: string | null; createdAt: Date; updatedAt: Date }) => ({
         id: override.id,
         method: override.method,
         path: override.path,
@@ -94,6 +94,7 @@ async function handleRequest(
         body: override.body ? JSON.parse(override.body) : null,
         status: override.status,
         responseBody: JSON.parse(override.responseBody),
+        ipAddress: override.ipAddress,
         createdAt: override.createdAt,
         updatedAt: override.updatedAt,
       }))

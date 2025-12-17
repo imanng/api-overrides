@@ -33,6 +33,7 @@ export async function GET(
       body: override.body ? JSON.parse(override.body) : null,
       status: override.status,
       responseBody: JSON.parse(override.responseBody),
+      ipAddress: override.ipAddress,
       createdAt: override.createdAt,
       updatedAt: override.updatedAt,
     })
@@ -116,6 +117,7 @@ export async function PUT(
       body: override.body ? JSON.parse(override.body) : null,
       status: override.status,
       responseBody: JSON.parse(override.responseBody),
+      ipAddress: override.ipAddress,
       createdAt: override.createdAt,
       updatedAt: override.updatedAt,
     })
