@@ -115,7 +115,7 @@ export default function SamplesPage() {
               </p>
             </div>
             <div className="flex justify-end">
-              <Button variant="ghost" onClick={handleDownloadSample}>
+              <Button variant="outline" onClick={handleDownloadSample}>
                 📥 Download All
               </Button>
             </div>

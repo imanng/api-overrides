@@ -39,6 +39,7 @@ export type ApiConfigMinAggregateOutputType = {
   baseUrl: string | null
   authHeaders: string | null
   timeout: number | null
+  userKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +49,7 @@ export type ApiConfigMaxAggregateOutputType = {
   baseUrl: string | null
   authHeaders: string | null
   timeout: number | null
+  userKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,6 +59,7 @@ export type ApiConfigCountAggregateOutputType = {
   baseUrl: number
   authHeaders: number
   timeout: number
+  userKey: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -76,6 +79,7 @@ export type ApiConfigMinAggregateInputType = {
   baseUrl?: true
   authHeaders?: true
   timeout?: true
+  userKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -85,6 +89,7 @@ export type ApiConfigMaxAggregateInputType = {
   baseUrl?: true
   authHeaders?: true
   timeout?: true
+  userKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +99,7 @@ export type ApiConfigCountAggregateInputType = {
   baseUrl?: true
   authHeaders?: true
   timeout?: true
+  userKey?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -190,6 +196,7 @@ export type ApiConfigGroupByOutputType = {
   baseUrl: string
   authHeaders: string | null
   timeout: number
+  userKey: string | null
   createdAt: Date
   updatedAt: Date
   _count: ApiConfigCountAggregateOutputType | null
@@ -222,6 +229,7 @@ export type ApiConfigWhereInput = {
   baseUrl?: Prisma.StringFilter<"ApiConfig"> | string
   authHeaders?: Prisma.StringNullableFilter<"ApiConfig"> | string | null
   timeout?: Prisma.IntFilter<"ApiConfig"> | number
+  userKey?: Prisma.StringNullableFilter<"ApiConfig"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ApiConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApiConfig"> | Date | string
 }
@@ -231,6 +239,7 @@ export type ApiConfigOrderByWithRelationInput = {
   baseUrl?: Prisma.SortOrder
   authHeaders?: Prisma.SortOrderInput | Prisma.SortOrder
   timeout?: Prisma.SortOrder
+  userKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -243,6 +252,7 @@ export type ApiConfigWhereUniqueInput = Prisma.AtLeast<{
   baseUrl?: Prisma.StringFilter<"ApiConfig"> | string
   authHeaders?: Prisma.StringNullableFilter<"ApiConfig"> | string | null
   timeout?: Prisma.IntFilter<"ApiConfig"> | number
+  userKey?: Prisma.StringNullableFilter<"ApiConfig"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ApiConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApiConfig"> | Date | string
 }, "id" | "id">
@@ -252,6 +262,7 @@ export type ApiConfigOrderByWithAggregationInput = {
   baseUrl?: Prisma.SortOrder
   authHeaders?: Prisma.SortOrderInput | Prisma.SortOrder
   timeout?: Prisma.SortOrder
+  userKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ApiConfigCountOrderByAggregateInput
@@ -269,6 +280,7 @@ export type ApiConfigScalarWhereWithAggregatesInput = {
   baseUrl?: Prisma.StringWithAggregatesFilter<"ApiConfig"> | string
   authHeaders?: Prisma.StringNullableWithAggregatesFilter<"ApiConfig"> | string | null
   timeout?: Prisma.IntWithAggregatesFilter<"ApiConfig"> | number
+  userKey?: Prisma.StringNullableWithAggregatesFilter<"ApiConfig"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ApiConfig"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ApiConfig"> | Date | string
 }
@@ -278,6 +290,7 @@ export type ApiConfigCreateInput = {
   baseUrl: string
   authHeaders?: string | null
   timeout?: number
+  userKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -287,6 +300,7 @@ export type ApiConfigUncheckedCreateInput = {
   baseUrl: string
   authHeaders?: string | null
   timeout?: number
+  userKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -296,6 +310,7 @@ export type ApiConfigUpdateInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   authHeaders?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timeout?: Prisma.IntFieldUpdateOperationsInput | number
+  userKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -305,6 +320,7 @@ export type ApiConfigUncheckedUpdateInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   authHeaders?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timeout?: Prisma.IntFieldUpdateOperationsInput | number
+  userKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -314,6 +330,7 @@ export type ApiConfigCreateManyInput = {
   baseUrl: string
   authHeaders?: string | null
   timeout?: number
+  userKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -323,6 +340,7 @@ export type ApiConfigUpdateManyMutationInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   authHeaders?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timeout?: Prisma.IntFieldUpdateOperationsInput | number
+  userKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -332,6 +350,7 @@ export type ApiConfigUncheckedUpdateManyInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   authHeaders?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timeout?: Prisma.IntFieldUpdateOperationsInput | number
+  userKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -341,6 +360,7 @@ export type ApiConfigCountOrderByAggregateInput = {
   baseUrl?: Prisma.SortOrder
   authHeaders?: Prisma.SortOrder
   timeout?: Prisma.SortOrder
+  userKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -354,6 +374,7 @@ export type ApiConfigMaxOrderByAggregateInput = {
   baseUrl?: Prisma.SortOrder
   authHeaders?: Prisma.SortOrder
   timeout?: Prisma.SortOrder
+  userKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -363,6 +384,7 @@ export type ApiConfigMinOrderByAggregateInput = {
   baseUrl?: Prisma.SortOrder
   authHeaders?: Prisma.SortOrder
   timeout?: Prisma.SortOrder
+  userKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -378,6 +400,7 @@ export type ApiConfigSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   baseUrl?: boolean
   authHeaders?: boolean
   timeout?: boolean
+  userKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["apiConfig"]>
@@ -387,6 +410,7 @@ export type ApiConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   baseUrl?: boolean
   authHeaders?: boolean
   timeout?: boolean
+  userKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["apiConfig"]>
@@ -396,6 +420,7 @@ export type ApiConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   baseUrl?: boolean
   authHeaders?: boolean
   timeout?: boolean
+  userKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["apiConfig"]>
@@ -405,11 +430,12 @@ export type ApiConfigSelectScalar = {
   baseUrl?: boolean
   authHeaders?: boolean
   timeout?: boolean
+  userKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ApiConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "baseUrl" | "authHeaders" | "timeout" | "createdAt" | "updatedAt", ExtArgs["result"]["apiConfig"]>
+export type ApiConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "baseUrl" | "authHeaders" | "timeout" | "userKey" | "createdAt" | "updatedAt", ExtArgs["result"]["apiConfig"]>
 
 export type $ApiConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ApiConfig"
@@ -419,6 +445,7 @@ export type $ApiConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     baseUrl: string
     authHeaders: string | null
     timeout: number
+    userKey: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["apiConfig"]>
@@ -848,6 +875,7 @@ export interface ApiConfigFieldRefs {
   readonly baseUrl: Prisma.FieldRef<"ApiConfig", 'String'>
   readonly authHeaders: Prisma.FieldRef<"ApiConfig", 'String'>
   readonly timeout: Prisma.FieldRef<"ApiConfig", 'Int'>
+  readonly userKey: Prisma.FieldRef<"ApiConfig", 'String'>
   readonly createdAt: Prisma.FieldRef<"ApiConfig", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ApiConfig", 'DateTime'>
 }

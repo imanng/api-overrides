@@ -30,6 +30,7 @@ model ApiConfig {
   baseUrl     String   // Main API base URL
   authHeaders String?  // JSON string of authentication headers
   timeout     Int      @default(30000) // Request timeout in ms
+  userKey     String?  // User key for accessing overrides when IP changes
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

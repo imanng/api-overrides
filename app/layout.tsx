@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "API Overrides",
+  title: "API Overrides Tool",
   description: "Configure API overrides to intercept and modify API responses",
 };
 

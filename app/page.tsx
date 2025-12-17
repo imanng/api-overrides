@@ -132,20 +132,31 @@ export default function Home() {
         <header className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold mb-2">API Overrides</h1>
+              <h1 className="text-3xl font-bold mb-2">API Overrides Tool</h1>
               <p className="text-muted-foreground">
                 Configure API overrides to intercept and modify API responses
               </p>
             </div>
-            <Link href="/samples">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-sm text-muted-foreground hover:text-foreground"
-              >
-                📚 Samples
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link href="/settings">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  ⚙️ Settings
+                </Button>
+              </Link>
+              <Link href="/samples">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  📚 Samples
+                </Button>
+              </Link>
+            </div>
           </div>
         </header>
 

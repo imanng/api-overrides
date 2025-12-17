@@ -613,6 +613,7 @@ export const ApiConfigScalarFieldEnum = {
   baseUrl: 'baseUrl',
   authHeaders: 'authHeaders',
   timeout: 'timeout',
+  userKey: 'userKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
