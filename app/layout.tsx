@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/toast";
 import { AlertDialogProvider } from "@/components/ui/alert-dialog";
@@ -32,6 +33,7 @@ export default function RootLayout({
         <ToastProvider>
           <AlertDialogProvider>{children}</AlertDialogProvider>
         </ToastProvider>
+        <Analytics />
       </body>
     </html>
   );
