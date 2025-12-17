@@ -19,8 +19,8 @@ const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
   "clientVersion": "7.1.0",
   "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
-  "activeProvider": "sqlite",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"./generated/client\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n}\n\nmodel Override {\n  id           String   @id @default(cuid())\n  method       String // HTTP method (GET, POST, etc.)\n  path         String // URL path pattern\n  headers      String? // JSON string of headers to match\n  body         String? // JSON string of request body to match\n  status       Int      @default(200) // Response status code\n  responseBody String // JSON string of response body\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  @@index([method, path])\n}\n\nmodel ApiConfig {\n  id          String   @id @default(cuid())\n  baseUrl     String // Main API base URL\n  authHeaders String? // JSON string of authentication headers\n  timeout     Int      @default(30000) // Request timeout in ms\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  @@unique([id])\n}\n",
+  "activeProvider": "postgresql",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"./generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Override {\n  id           String   @id @default(cuid())\n  method       String // HTTP method (GET, POST, etc.)\n  path         String // URL path pattern\n  headers      String? // JSON string of headers to match\n  body         String? // JSON string of request body to match\n  status       Int      @default(200) // Response status code\n  responseBody String // JSON string of response body\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  @@index([method, path])\n}\n\nmodel ApiConfig {\n  id          String   @id @default(cuid())\n  baseUrl     String // Main API base URL\n  authHeaders String? // JSON string of authentication headers\n  timeout     Int      @default(30000) // Request timeout in ms\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  @@unique([id])\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -37,10 +37,10 @@ async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Modul
 }
 
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.sqlite.mjs"),
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
 
   getQueryCompilerWasmModule: async () => {
-    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.sqlite.wasm-base64.mjs")
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs")
     return await decodeBase64AsWasm(wasm)
   }
 }

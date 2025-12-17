@@ -1055,6 +1055,7 @@ export type ApiConfigCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * The data used to create many ApiConfigs.
    */
   data: Prisma.ApiConfigCreateManyInput | Prisma.ApiConfigCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1073,6 +1074,7 @@ export type ApiConfigCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many ApiConfigs.
    */
   data: Prisma.ApiConfigCreateManyInput | Prisma.ApiConfigCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

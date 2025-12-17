@@ -14,7 +14,7 @@ A Next.js application that allows you to configure API overrides to intercept an
 
 - Node.js 18+
 - pnpm (or npm/yarn)
-- SQLite (included with Node.js)
+- PostgreSQL database (Vercel Postgres recommended for Vercel deployments)
 
 ## Installation
 
@@ -31,32 +31,48 @@ cd api-overrides
 pnpm install
 ```
 
-### Step 3: Set up the database
+### Step 3: Set up PostgreSQL database
 
-The project uses Prisma with SQLite. The database will be automatically created when you run migrations.
+The project uses Prisma with PostgreSQL. You can use:
+
+- **Vercel Postgres** (recommended for Vercel deployments)
+- **Any PostgreSQL database** (Supabase, Neon, Railway, etc.)
+
+#### Option A: Vercel Postgres (Recommended)
+
+1. Create a new project on [Vercel](https://vercel.com)
+2. Go to your project → Storage → Create Database → Postgres
+3. Copy the `POSTGRES_URL` connection string
+
+#### Option B: Other PostgreSQL providers
+
+Create a PostgreSQL database with any provider and get the connection string.
+
+#### Configure environment variables
+
+Create a `.env` file in the root directory:
+
+```bash
+# PostgreSQL connection string
+DATABASE_URL="postgresql://user:password@host:port/database?schema=public"
+```
+
+For Vercel Postgres, the connection string will be automatically provided as `POSTGRES_URL` in production.
+
+#### Run migrations
 
 ```bash
 # Generate Prisma client
-pnpm prisma generate
+pnpm db:generate
 
-# Run database migrations
+# Create and apply migrations
 pnpm prisma migrate dev
+
+# For production, apply migrations
+pnpm db:migrate
 ```
 
-This will create a `dev.db` SQLite database file in your project root.
-
-### Step 4: Configure environment variables
-
-Create a `.env` file in the root directory (if it doesn't exist):
-
-```bash
-# Database URL for Prisma
-DATABASE_URL="file:./dev.db"
-```
-
-The `.env` file should already exist from the Prisma setup. If not, create it with the DATABASE_URL above.
-
-### Step 5: Start the development server
+### Step 4: Start the development server
 
 ```bash
 pnpm dev
@@ -164,14 +180,24 @@ You can view and edit the schema in `prisma/schema.prisma`.
 ### Database Management
 
 ```bash
-# View database in Prisma Studio
-pnpm prisma studio
+# View database in Prisma Studio (requires DATABASE_URL)
+# Note: Prisma Studio may not work directly with D1
+# Use Cloudflare dashboard or wrangler CLI instead
 
 # Create a new migration
 pnpm prisma migrate dev --name migration_name
 
-# Reset database (WARNING: deletes all data)
-pnpm prisma migrate reset
+# Apply migrations to D1
+pnpm db:migrate
+
+# Apply migrations locally
+npx wrangler d1 migrations apply DB --local
+
+# Execute SQL queries on D1
+npx wrangler d1 execute DB --command "SELECT * FROM Override"
+
+# Execute SQL from file
+npx wrangler d1 execute DB --file=./migrations/your-migration.sql
 ```
 
 ### Project Structure
@@ -196,7 +222,68 @@ api-overrides/
 └── README.md
 ```
 
-## Building for Production
+## Deploying to Vercel
+
+### Step 1: Push to GitHub
+
+```bash
+git add .
+git commit -m "Prepare for Vercel deployment"
+git push origin main
+```
+
+### Step 2: Create Vercel Project
+
+1. Go to [Vercel](https://vercel.com) and sign in
+2. Click "Add New Project"
+3. Import your GitHub repository
+4. Configure the project:
+   - **Framework Preset**: Next.js
+   - **Root Directory**: `./` (default)
+   - **Build Command**: `pnpm build` (or `npm run build`)
+   - **Output Directory**: `.next` (default)
+   - **Install Command**: `pnpm install` (or `npm install`)
+
+### Step 3: Set up Vercel Postgres
+
+1. In your Vercel project dashboard, go to **Storage**
+2. Click **Create Database** → **Postgres**
+3. Choose a name and region
+4. The `POSTGRES_URL` environment variable will be automatically added
+
+### Step 4: Configure Environment Variables
+
+In your Vercel project settings → **Environment Variables**, add:
+
+- `DATABASE_URL`:
+  - **If using Vercel Postgres**: Set to `POSTGRES_URL` (or create a new variable that references `${POSTGRES_URL}`)
+  - **If using another PostgreSQL provider**: Use your PostgreSQL connection string
+
+**Note**: Vercel Postgres automatically provides `POSTGRES_URL`. You can either:
+
+1. Use `POSTGRES_URL` directly by setting `DATABASE_URL=${POSTGRES_URL}` in Vercel's environment variables
+2. Or update your code to use `POSTGRES_URL` if `DATABASE_URL` is not set
+
+### Step 5: Run Database Migrations
+
+After deployment, run migrations on your production database:
+
+```bash
+# Using Vercel CLI
+npx vercel env pull .env.production
+pnpm prisma migrate deploy
+
+# Or using direct connection
+DATABASE_URL="your-production-url" pnpm prisma migrate deploy
+```
+
+Alternatively, you can run migrations automatically during build by adding a build script.
+
+### Step 6: Deploy
+
+Vercel will automatically deploy on every push to your main branch. You can also trigger manual deployments from the dashboard.
+
+### Local Production Build
 
 ```bash
 # Build the application
@@ -212,16 +299,17 @@ pnpm start
 
 If you see a TypeScript error about `PrismaClient` not being exported:
 
-1. Run `pnpm prisma generate` to regenerate the client
+1. Run `ç` to regenerate the client
 2. Restart your TypeScript server/IDE
 
-### Database Locked Error
+### Database Connection Error
 
-If you get a "database is locked" error:
+If you get a database connection error:
 
-- Make sure no other process is using the database
-- Close Prisma Studio if it's open
-- Restart the development server
+- Verify your `DATABASE_URL` environment variable is set correctly
+- Check that your PostgreSQL database is running and accessible
+- For Vercel deployments, ensure `POSTGRES_URL` is set (or `DATABASE_URL` points to your database)
+- Verify network access if using a hosted database (check IP whitelist if applicable)
 
 ### Proxy Not Working
 

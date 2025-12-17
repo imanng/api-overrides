@@ -1159,6 +1159,7 @@ export type OverrideCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * The data used to create many Overrides.
    */
   data: Prisma.OverrideCreateManyInput | Prisma.OverrideCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1177,6 +1178,7 @@ export type OverrideCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many Overrides.
    */
   data: Prisma.OverrideCreateManyInput | Prisma.OverrideCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
