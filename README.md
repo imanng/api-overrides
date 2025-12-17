@@ -42,7 +42,7 @@ The project uses Prisma with PostgreSQL. You can use:
 
 1. Create a new project on [Vercel](https://vercel.com)
 2. Go to your project → Storage → Create Database → Postgres
-3. Copy the `POSTGRES_URL` connection string
+3. Copy the connection string
 
 #### Option B: Other PostgreSQL providers
 
@@ -56,8 +56,6 @@ Create a `.env` file in the root directory:
 # PostgreSQL connection string
 DATABASE_URL="postgresql://user:password@host:port/database?schema=public"
 ```
-
-For Vercel Postgres, the connection string will be automatically provided as `POSTGRES_URL` in production.
 
 #### Run migrations
 
@@ -249,20 +247,15 @@ git push origin main
 1. In your Vercel project dashboard, go to **Storage**
 2. Click **Create Database** → **Postgres**
 3. Choose a name and region
-4. The `POSTGRES_URL` environment variable will be automatically added
+4. The connection string will be automatically added as an environment variable
 
 ### Step 4: Configure Environment Variables
 
 In your Vercel project settings → **Environment Variables**, add:
 
-- `DATABASE_URL`:
-  - **If using Vercel Postgres**: Set to `POSTGRES_URL` (or create a new variable that references `${POSTGRES_URL}`)
+- `DATABASE_URL`: Your PostgreSQL connection string
+  - **If using Vercel Postgres**: The connection string is automatically provided
   - **If using another PostgreSQL provider**: Use your PostgreSQL connection string
-
-**Note**: Vercel Postgres automatically provides `POSTGRES_URL`. You can either:
-
-1. Use `POSTGRES_URL` directly by setting `DATABASE_URL=${POSTGRES_URL}` in Vercel's environment variables
-2. Or update your code to use `POSTGRES_URL` if `DATABASE_URL` is not set
 
 ### Step 5: Run Database Migrations
 
@@ -308,7 +301,7 @@ If you get a database connection error:
 
 - Verify your `DATABASE_URL` environment variable is set correctly
 - Check that your PostgreSQL database is running and accessible
-- For Vercel deployments, ensure `POSTGRES_URL` is set (or `DATABASE_URL` points to your database)
+- For Vercel deployments, ensure `DATABASE_URL` points to your database
 - Verify network access if using a hosted database (check IP whitelist if applicable)
 
 ### Proxy Not Working
