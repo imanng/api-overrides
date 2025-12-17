@@ -153,6 +153,7 @@ async function handleRequest(
         baseUrl: config.baseUrl,
         authHeaders: config.authHeaders ? JSON.parse(config.authHeaders) : null,
         timeout: config.timeout,
+        userKey: config.userKey,
         createdAt: config.createdAt,
         updatedAt: config.updatedAt,
       }
