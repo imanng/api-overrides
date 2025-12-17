@@ -88,7 +88,7 @@ export function AlertDialogProvider({
     <AlertDialogContext.Provider value={{ showAlert, showConfirm }}>
       {children}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>{message}</DialogDescription>
