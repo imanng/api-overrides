@@ -13,6 +13,7 @@ export async function GET() {
         baseUrl: '',
         authHeaders: null,
         timeout: 30000,
+        userKey: null,
       })
     }
 
@@ -21,6 +22,7 @@ export async function GET() {
       baseUrl: config.baseUrl,
       authHeaders: config.authHeaders ? JSON.parse(config.authHeaders) : null,
       timeout: config.timeout,
+      userKey: config.userKey,
       createdAt: config.createdAt,
       updatedAt: config.updatedAt,
     })
@@ -65,6 +67,7 @@ export async function PUT(request: NextRequest) {
       baseUrl: config.baseUrl,
       authHeaders: config.authHeaders ? JSON.parse(config.authHeaders) : null,
       timeout: config.timeout,
+      userKey: config.userKey,
       createdAt: config.createdAt,
       updatedAt: config.updatedAt,
     })
