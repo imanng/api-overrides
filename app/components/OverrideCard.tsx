@@ -98,19 +98,22 @@ export default function OverrideCard({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{override.method}</Badge>
-            <code className="text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="secondary" className="text-xs">
+              {override.method}
+            </Badge>
+            <code className="text-xs sm:text-sm text-muted-foreground break-all">
               {override.path}
             </code>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant="outline"
               size="sm"
               onClick={handleOpenInNewTab}
               title="Open in new tab"
+              className="text-xs"
             >
               🔗 Open
             </Button>
@@ -118,6 +121,7 @@ export default function OverrideCard({
               variant="outline"
               size="sm"
               onClick={() => onEdit(override)}
+              className="text-xs"
             >
               Edit
             </Button>
@@ -126,6 +130,7 @@ export default function OverrideCard({
               size="sm"
               onClick={handleDelete}
               disabled={isDeleting}
+              className="text-xs"
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </Button>
@@ -138,7 +143,7 @@ export default function OverrideCard({
             <span className="text-xs font-semibold text-muted-foreground">
               Headers:
             </span>
-            <pre className="text-xs mt-1 p-2 bg-muted rounded overflow-x-auto">
+            <pre className="text-xs mt-1 p-2 bg-muted rounded overflow-x-auto break-all whitespace-pre-wrap">
               {JSON.stringify(override.headers, null, 2)}
             </pre>
           </div>
@@ -149,14 +154,14 @@ export default function OverrideCard({
             <span className="text-xs font-semibold text-muted-foreground">
               Body:
             </span>
-            <pre className="text-xs mt-1 p-2 bg-muted rounded overflow-x-auto">
+            <pre className="text-xs mt-1 p-2 bg-muted rounded overflow-x-auto break-all whitespace-pre-wrap">
               {JSON.stringify(override.body, null, 2)}
             </pre>
           </div>
         )}
 
         <div className="pt-3 border-t space-y-2">
-          <div className="flex items-center gap-4 text-xs flex-wrap">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs">
             <span>
               <span className="font-semibold text-muted-foreground">
                 Status:
@@ -164,19 +169,21 @@ export default function OverrideCard({
               <code>{override.status}</code>
             </span>
             {override.ipAddress && (
-              <span>
+              <span className="break-all">
                 <span className="font-semibold text-muted-foreground">IP:</span>{" "}
-                <code className="text-muted-foreground">
+                <code className="text-muted-foreground break-all">
                   {override.ipAddress}
                 </code>
               </span>
             )}
             {baseApi && (
-              <span>
+              <span className="break-all">
                 <span className="font-semibold text-muted-foreground">
                   Base API:
                 </span>{" "}
-                <code className="text-muted-foreground">{baseApi.key}</code>
+                <code className="text-muted-foreground break-all">
+                  {baseApi.key}
+                </code>
               </span>
             )}
           </div>
@@ -184,7 +191,7 @@ export default function OverrideCard({
             <span className="font-semibold text-muted-foreground">
               Response:
             </span>{" "}
-            <code className="text-muted-foreground">
+            <code className="text-muted-foreground break-all">
               {typeof override.responseBody === "string"
                 ? override.responseBody.substring(0, 50) + "..."
                 : JSON.stringify(override.responseBody).substring(0, 50) +

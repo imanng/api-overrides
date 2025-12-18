@@ -192,13 +192,15 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <header className="mb-8">
-          <div className="flex items-start gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-4">
             <Link href="/">
-              <Button variant="ghost">← Back</Button>
+              <Button variant="ghost" className="w-full sm:w-auto">
+                ← Back
+              </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-2">Settings</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">Settings</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Manage your user key and import overrides
               </p>
             </div>
@@ -222,32 +224,36 @@ export default function SettingsPage() {
                 <div className="text-muted-foreground">Loading...</div>
               ) : (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <Input
                       type={showKey ? "text" : "password"}
                       value={userKey || ""}
                       readOnly
-                      className="font-mono text-sm"
+                      className="font-mono text-xs sm:text-sm flex-1"
                     />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setShowKey(!showKey)}
-                    >
-                      {showKey ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleCopyKey}
-                      disabled={!userKey}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setShowKey(!showKey)}
+                        className="flex-shrink-0"
+                      >
+                        {showKey ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleCopyKey}
+                        disabled={!userKey}
+                        className="flex-shrink-0"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -269,7 +275,7 @@ export default function SettingsPage() {
                         <p className="font-semibold mb-1">
                           Overrides Access URL:
                         </p>
-                        <code className="break-all">
+                        <code className="break-all text-xs">
                           {typeof window !== "undefined"
                             ? `${window.location.origin}/api/overrides/with-key?key=${userKey}`
                             : ""}

@@ -75,17 +75,21 @@ export default function ConfigForm() {
         <AlertTitle>Configuration via Environment Variable</AlertTitle>
         <AlertDescription>
           Base APIs are now configured via the{" "}
-          <code className="px-1 py-0.5 bg-muted rounded">BASE_APIS</code>{" "}
+          <code className="px-1 py-0.5 bg-muted rounded break-all">
+            BASE_APIS
+          </code>{" "}
           environment variable.
           <br />
           Format:{" "}
-          <code className="px-1 py-0.5 bg-muted rounded">
+          <code className="px-1 py-0.5 bg-muted rounded break-all">
             name1:url1,name2:url2
           </code>
           <br />
           <br />
           To update your configuration, set the{" "}
-          <code className="px-1 py-0.5 bg-muted rounded">BASE_APIS</code>{" "}
+          <code className="px-1 py-0.5 bg-muted rounded break-all">
+            BASE_APIS
+          </code>{" "}
           environment variable and restart the application.
         </AlertDescription>
       </Alert>
@@ -93,20 +97,23 @@ export default function ConfigForm() {
       {/* Base APIs List */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Base APIs (Read-Only)</CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <CardTitle className="text-lg sm:text-xl">
+              Base APIs (Read-Only)
+            </CardTitle>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExportBaseApis}
+                className="w-full sm:w-auto"
               >
                 📤 Export
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-0">
           {/* Existing APIs */}
           {baseApis.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
@@ -129,7 +136,7 @@ export default function ConfigForm() {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground break-all">
                         {api.baseUrl}
                       </p>
                       {api.pathPrefix && (

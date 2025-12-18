@@ -104,18 +104,26 @@ export default function SamplesPage() {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <header className="mb-8">
-          <div className="flex items-start gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-4">
             <Link href="/">
-              <Button variant="ghost">← Back</Button>
+              <Button variant="ghost" className="w-full sm:w-auto">
+                ← Back
+              </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-2">Sample Overrides</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+                Sample Overrides
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Browse example overrides to learn how to create your own
               </p>
             </div>
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={handleDownloadSample}>
+            <div className="flex justify-start sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={handleDownloadSample}
+                className="w-full sm:w-auto"
+              >
                 📥 Download All
               </Button>
             </div>
@@ -131,14 +139,16 @@ export default function SamplesPage() {
             {samples.map((sample, index) => (
               <Card key={index}>
                 <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline">{sample.method}</Badge>
-                        <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs">
+                          {sample.method}
+                        </Badge>
+                        <code className="text-xs sm:text-sm font-mono bg-muted px-2 py-1 rounded break-all">
                           {sample.path}
                         </code>
-                        <Badge variant="secondary">
+                        <Badge variant="secondary" className="text-xs">
                           Status: {sample.status}
                         </Badge>
                       </div>
@@ -147,7 +157,7 @@ export default function SamplesPage() {
                           <p className="text-xs text-muted-foreground mb-1">
                             Headers:
                           </p>
-                          <code className="text-xs bg-muted p-1 rounded block">
+                          <code className="text-xs bg-muted p-1 rounded block break-words whitespace-pre-wrap overflow-x-auto">
                             {JSON.stringify(sample.headers, null, 2)}
                           </code>
                         </div>
@@ -157,7 +167,7 @@ export default function SamplesPage() {
                           <p className="text-xs text-muted-foreground mb-1">
                             Request Body:
                           </p>
-                          <code className="text-xs bg-muted p-1 rounded block">
+                          <code className="text-xs bg-muted p-1 rounded block break-words whitespace-pre-wrap overflow-x-auto">
                             {JSON.stringify(sample.body, null, 2)}
                           </code>
                         </div>
@@ -168,6 +178,7 @@ export default function SamplesPage() {
                       variant="outline"
                       onClick={() => handleImportSample(sample, index)}
                       disabled={importingIndex === index}
+                      className="w-full sm:w-auto flex-shrink-0"
                     >
                       {importingIndex === index ? "Importing..." : "Import"}
                     </Button>
@@ -176,7 +187,7 @@ export default function SamplesPage() {
                 <CardContent>
                   <div>
                     <p className="text-sm font-semibold mb-2">Response Body:</p>
-                    <pre className="text-xs bg-muted p-3 rounded overflow-x-auto max-h-64 overflow-y-auto">
+                    <pre className="text-xs bg-muted p-3 rounded overflow-x-auto max-h-64 overflow-y-auto break-words whitespace-pre-wrap">
                       {JSON.stringify(sample.responseBody, null, 2)}
                     </pre>
                   </div>

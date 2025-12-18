@@ -151,10 +151,12 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <header className="mb-8">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">API Overrides Tool</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+                API Overrides Tool
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Configure API overrides to intercept and modify API responses
               </p>
             </div>
@@ -188,7 +190,7 @@ export default function Home() {
           }
           className="w-full"
         >
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-md grid-cols-2 text-sm sm:text-base">
             <TabsTrigger value="overrides">Overrides</TabsTrigger>
             <TabsTrigger value="config">API Configuration</TabsTrigger>
           </TabsList>
@@ -196,16 +198,30 @@ export default function Home() {
           <TabsContent value="overrides" className="mt-6">
             {!showForm ? (
               <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-semibold">API Overrides</h2>
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleExport}>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                  <h2 className="text-xl sm:text-2xl font-semibold">
+                    API Overrides
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={handleExport}
+                      className="text-sm"
+                    >
                       📤 Export
                     </Button>
-                    <Button variant="outline" onClick={handleImport}>
+                    <Button
+                      variant="outline"
+                      onClick={handleImport}
+                      className="text-sm"
+                    >
                       📥 Import
                     </Button>
-                    <Button variant="outline" onClick={handleNewOverride}>
+                    <Button
+                      variant="outline"
+                      onClick={handleNewOverride}
+                      className="text-sm"
+                    >
                       + New Override
                     </Button>
                   </div>
@@ -235,7 +251,7 @@ export default function Home() {
             ) : (
               <div>
                 <div className="mb-6">
-                  <h2 className="text-2xl font-semibold">
+                  <h2 className="text-xl sm:text-2xl font-semibold">
                     {editingOverride ? "Edit Override" : "Create New Override"}
                   </h2>
                 </div>
@@ -255,7 +271,7 @@ export default function Home() {
           <TabsContent value="config" className="mt-6">
             <div>
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold">
+                <h2 className="text-xl sm:text-2xl font-semibold">
                   Main API Configuration
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -275,7 +291,7 @@ export default function Home() {
                   <p className="mb-2">
                     Once configured, you can make requests to:
                   </p>
-                  <code className="block text-sm bg-muted p-2 rounded mt-2 font-mono">
+                  <code className="block text-xs sm:text-sm bg-muted p-2 rounded mt-2 font-mono break-all">
                     /api/proxy/[base-api-key]/your/path/here
                   </code>
                   <p className="mt-3">

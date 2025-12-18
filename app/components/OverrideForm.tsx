@@ -214,7 +214,7 @@ export default function OverrideForm({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="method">HTTP Method</Label>
           <Select value={method} onValueChange={setMethod}>
@@ -316,11 +316,21 @@ export default function OverrideForm({
         )}
       </div>
 
-      <div className="flex gap-3 pt-4">
-        <Button type="submit" variant="outline" disabled={isSaving}>
+      <div className="flex flex-col sm:flex-row gap-3 pt-4">
+        <Button
+          type="submit"
+          variant="outline"
+          disabled={isSaving}
+          className="w-full sm:w-auto"
+        >
           {isSaving ? "Saving..." : override ? "Update" : "Create"}
         </Button>
-        <Button type="button" variant="ghost" onClick={onCancel}>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onCancel}
+          className="w-full sm:w-auto"
+        >
           Cancel
         </Button>
       </div>
