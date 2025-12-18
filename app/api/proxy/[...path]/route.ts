@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { findMatchingOverride } from '@/lib/matching'
 import { proxyRequest } from '@/lib/proxy'
+import { getBaseApisFromEnv, getDefaultBaseApi } from '@/lib/env-config'
 
 // Handle all HTTP methods
 export async function GET(
@@ -128,49 +129,19 @@ async function handleRequest(
     }
 
     // No override found, proxy to main API
-    // First, try to find a matching BaseApi by path prefix
-    const baseApis = await prisma.baseApi.findMany({
-      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
-    })
+    // Get base APIs from environment
+    const baseApis = getBaseApisFromEnv()
+    const selectedBaseApi = baseApis.length > 0 ? baseApis[0] : null
 
-    let selectedBaseApi = null
-    if (baseApis.length > 0) {
-      // Try to match by path prefix first
-      for (const api of baseApis) {
-        if (api.pathPrefix && path.startsWith(api.pathPrefix)) {
-          selectedBaseApi = api
-          break
-        }
-      }
-      // If no prefix match, use default
-      if (!selectedBaseApi) {
-        selectedBaseApi = baseApis.find((api) => api.isDefault) || baseApis[0]
-      }
-    }
-
-    // Fall back to old ApiConfig for backward compatibility
-    const config = await prisma.apiConfig.findFirst()
-    let baseUrl: string
-    let authHeaders: Record<string, string> | null = null
-    let timeout: number = 30000
-
-    if (selectedBaseApi) {
-      baseUrl = selectedBaseApi.baseUrl
-      authHeaders = selectedBaseApi.authHeaders
-        ? JSON.parse(selectedBaseApi.authHeaders)
-        : null
-      timeout = config?.timeout ?? 30000
-    } else if (config?.baseUrl) {
-      // Backward compatibility: use old ApiConfig
-      baseUrl = config.baseUrl
-      authHeaders = config.authHeaders ? JSON.parse(config.authHeaders) : null
-      timeout = config.timeout
-    } else {
+    if (!selectedBaseApi) {
       return NextResponse.json(
-        { error: 'No base API configured' },
+        { error: 'No base API configured. Please set BASE_APIS environment variable.' },
         { status: 500 }
       )
     }
+
+    const baseUrl = selectedBaseApi.baseUrl
+    const timeout = 30000
 
     // Build full URL for proxy (searchParams already extracted above)
     const fullPath = path + (searchParams ? `?${searchParams}` : '')
@@ -185,13 +156,13 @@ async function handleRequest(
         body,
       },
       {
-        id: config?.id || 'legacy',
+        id: 'env-config',
         baseUrl,
-        authHeaders,
+        authHeaders: null,
         timeout,
-        userKey: config?.userKey ?? null,
-        createdAt: config?.createdAt ?? new Date(),
-        updatedAt: config?.updatedAt ?? new Date(),
+        userKey: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     )
 

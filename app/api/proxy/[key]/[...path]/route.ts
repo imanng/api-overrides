@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { findMatchingOverride } from '@/lib/matching'
 import { proxyRequest } from '@/lib/proxy'
+import { getBaseApiByKey } from '@/lib/env-config'
 
 // Handle all HTTP methods
 export async function GET(
@@ -51,10 +52,8 @@ async function handleRequest(
     const searchParams = request.nextUrl.searchParams.toString()
     const fullPathForMatching = path + (searchParams ? `?${searchParams}` : '')
 
-    // Find base API by key
-    const baseApi = await prisma.baseApi.findUnique({
-      where: { key },
-    })
+    // Find base API by key from environment
+    const baseApi = getBaseApiByKey(key)
 
     if (!baseApi) {
       return NextResponse.json(
@@ -140,16 +139,13 @@ async function handleRequest(
     }
 
     // No override found, proxy to the specified base API
-    const config = await prisma.apiConfig.findFirst()
-    const timeout = config?.timeout ?? 30000
+    const timeout = 30000 // Default timeout
 
-    const baseUrl = baseApi.baseUrl
-    const authHeaders = baseApi.authHeaders
-      ? JSON.parse(baseApi.authHeaders)
-      : null
-
-    // Build full URL for proxy (searchParams already extracted above)
-    const fullPath = path + (searchParams ? `?${searchParams}` : '')
+    // Build full URL for proxy using /api/origin/${key} path
+    const fullPath = `/api/origin/${key}${path}` + (searchParams ? `?${searchParams}` : '')
+    
+    // Use request origin instead of baseUrl to let Next.js rewrites handle routing
+    const requestOrigin = request.nextUrl.origin
 
     // Proxy to main API - pass all headers through without comparison
     // Headers are only used for override matching above, not for filtering when proxying
@@ -161,13 +157,13 @@ async function handleRequest(
         body,
       },
       {
-        id: config?.id || 'legacy',
-        baseUrl,
-        authHeaders,
+        id: 'env-config',
+        baseUrl: requestOrigin, // Use request origin to ignore baseApi.baseUrl
+        authHeaders: null,
         timeout,
-        userKey: config?.userKey ?? null,
-        createdAt: config?.createdAt ?? new Date(),
-        updatedAt: config?.updatedAt ?? new Date(),
+        userKey: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     )
 

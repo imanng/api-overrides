@@ -1,30 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import type { UpdateApiConfigInput } from '@/types/api'
 
-// GET - Retrieve API configuration
+// GET - Retrieve API configuration (read-only, from environment)
 export async function GET() {
   try {
-    const config = await prisma.apiConfig.findFirst()
-
-    // If no config exists, return default
-    if (!config) {
-      return NextResponse.json({
-        baseUrl: '',
-        authHeaders: null,
-        timeout: 30000,
-        userKey: null,
-      })
-    }
-
+    // API configuration is now read-only and comes from environment
     return NextResponse.json({
-      id: config.id,
-      baseUrl: config.baseUrl,
-      authHeaders: config.authHeaders ? JSON.parse(config.authHeaders) : null,
-      timeout: config.timeout,
-      userKey: config.userKey,
-      createdAt: config.createdAt,
-      updatedAt: config.updatedAt,
+      baseUrl: '',
+      authHeaders: null,
+      timeout: 30000,
+      userKey: null,
+      message: 'API configuration is now managed via BASE_APIS environment variable',
     })
   } catch (error) {
     console.error('Error fetching API config:', error)
@@ -35,48 +20,11 @@ export async function GET() {
   }
 }
 
-// PUT - Update or create API configuration
+// PUT - Not supported (APIs are configured via BASE_APIS environment variable)
 export async function PUT(request: NextRequest) {
-  try {
-    const body: UpdateApiConfigInput = await request.json()
-
-    // Get existing config or create new one
-    let config = await prisma.apiConfig.findFirst()
-
-    const data = {
-      baseUrl: body.baseUrl ?? config?.baseUrl ?? '',
-      authHeaders: body.authHeaders ? JSON.stringify(body.authHeaders) : null,
-      timeout: body.timeout ?? config?.timeout ?? 30000,
-    }
-
-    if (config) {
-      // Update existing
-      config = await prisma.apiConfig.update({
-        where: { id: config.id },
-        data,
-      })
-    } else {
-      // Create new
-      config = await prisma.apiConfig.create({
-        data,
-      })
-    }
-
-    return NextResponse.json({
-      id: config.id,
-      baseUrl: config.baseUrl,
-      authHeaders: config.authHeaders ? JSON.parse(config.authHeaders) : null,
-      timeout: config.timeout,
-      userKey: config.userKey,
-      createdAt: config.createdAt,
-      updatedAt: config.updatedAt,
-    })
-  } catch (error) {
-    console.error('Error updating API config:', error)
-    return NextResponse.json(
-      { error: 'Failed to update API configuration' },
-      { status: 500 }
-    )
-  }
+  return NextResponse.json(
+    { error: 'API configuration is now managed via BASE_APIS environment variable. Cannot update via API.' },
+    { status: 405 }
+  )
 }
 

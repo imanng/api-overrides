@@ -1,24 +1,22 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getBaseApisFromEnv } from '@/lib/env-config'
 
 // GET - Export all base APIs as JSON file
 export async function GET() {
   try {
-    const baseApis = await prisma.baseApi.findMany({
-      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
-    })
+    const baseApis = getBaseApisFromEnv()
 
     // Format base APIs for export (exclude internal IDs and timestamps)
     const exportData = {
       version: '1.0',
       exportedAt: new Date().toISOString(),
-      baseApis: baseApis.map((api) => ({
+      baseApis: baseApis.map((api, index) => ({
         key: api.key,
         baseUrl: api.baseUrl,
-        pathPrefix: api.pathPrefix,
-        authHeaders: api.authHeaders ? JSON.parse(api.authHeaders) : null,
-        isDefault: api.isDefault,
-        order: api.order,
+        pathPrefix: null,
+        authHeaders: null,
+        isDefault: index === 0,
+        order: index,
       })),
     }
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getBaseApisFromEnv } from '@/lib/env-config'
 import { prisma } from '@/lib/prisma'
 
 // GET - Get all base APIs using user key
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Verify user key
+    // Verify user key (still check from database for backward compatibility)
     const config = await prisma.apiConfig.findFirst()
     
     if (!config || config.userKey !== userKey) {
@@ -24,22 +25,20 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Return all base APIs
-    const baseApis = await prisma.baseApi.findMany({
-      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
-    })
+    // Return all base APIs from environment
+    const baseApis = getBaseApisFromEnv()
 
     return NextResponse.json(
-      baseApis.map((api) => ({
-        id: api.id,
+      baseApis.map((api, index) => ({
+        id: `env-${index}`,
         key: api.key,
         baseUrl: api.baseUrl,
-        pathPrefix: api.pathPrefix,
-        authHeaders: api.authHeaders ? JSON.parse(api.authHeaders) : null,
-        isDefault: api.isDefault,
-        order: api.order,
-        createdAt: api.createdAt,
-        updatedAt: api.updatedAt,
+        pathPrefix: null,
+        authHeaders: null,
+        isDefault: index === 0,
+        order: index,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }))
     )
   } catch (error) {

@@ -1,25 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import type { CreateBaseApiInput, UpdateBaseApiInput } from '@/types/api'
+import { getBaseApisFromEnv } from '@/lib/env-config'
 
-// GET - List all base APIs
+// GET - List all base APIs from environment
 export async function GET() {
   try {
-    const baseApis = await prisma.baseApi.findMany({
-      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
-    })
+    const baseApis = getBaseApisFromEnv()
 
     return NextResponse.json(
-      baseApis.map((api) => ({
-        id: api.id,
+      baseApis.map((api, index) => ({
+        id: `env-${index}`,
         key: api.key,
         baseUrl: api.baseUrl,
-        pathPrefix: api.pathPrefix,
-        authHeaders: api.authHeaders ? JSON.parse(api.authHeaders) : null,
-        isDefault: api.isDefault,
-        order: api.order,
-        createdAt: api.createdAt,
-        updatedAt: api.updatedAt,
+        pathPrefix: null,
+        authHeaders: null,
+        isDefault: index === 0,
+        order: index,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }))
     )
   } catch (error) {
@@ -31,62 +28,10 @@ export async function GET() {
   }
 }
 
-// POST - Create a new base API
+// POST - Not supported (APIs are configured via BASE_APIS environment variable)
 export async function POST(request: NextRequest) {
-  try {
-    const body: CreateBaseApiInput = await request.json()
-
-    if (!body.key || !body.baseUrl) {
-      return NextResponse.json(
-        { error: 'Key and baseUrl are required' },
-        { status: 400 }
-      )
-    }
-
-    // If this is set as default, unset other defaults
-    if (body.isDefault) {
-      await prisma.baseApi.updateMany({
-        where: { isDefault: true },
-        data: { isDefault: false },
-      })
-    }
-
-    // Ensure key is a non-empty string
-    const keyValue = (body.key || '').trim()
-    if (!keyValue) {
-      return NextResponse.json(
-        { error: 'Key cannot be empty' },
-        { status: 400 }
-      )
-    }
-
-    const baseApi = await prisma.baseApi.create({
-      data: {
-        key: keyValue,
-        baseUrl: body.baseUrl,
-        pathPrefix: body.pathPrefix ?? null,
-        authHeaders: body.authHeaders ? JSON.stringify(body.authHeaders) : null,
-        isDefault: body.isDefault ?? false,
-        order: body.order ?? 0,
-      },
-    })
-
-    return NextResponse.json({
-      id: baseApi.id,
-      key: baseApi.key,
-      baseUrl: baseApi.baseUrl,
-      pathPrefix: baseApi.pathPrefix,
-      authHeaders: baseApi.authHeaders ? JSON.parse(baseApi.authHeaders) : null,
-      isDefault: baseApi.isDefault,
-      order: baseApi.order,
-      createdAt: baseApi.createdAt,
-      updatedAt: baseApi.updatedAt,
-    })
-  } catch (error) {
-    console.error('Error creating base API:', error)
-    return NextResponse.json(
-      { error: 'Failed to create base API' },
-      { status: 500 }
-    )
-  }
+  return NextResponse.json(
+    { error: 'Base APIs are configured via BASE_APIS environment variable. Cannot create via API.' },
+    { status: 405 }
+  )
 }

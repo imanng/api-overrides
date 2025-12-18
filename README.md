@@ -55,6 +55,9 @@ Create a `.env` file in the root directory:
 ```bash
 # PostgreSQL connection string
 DATABASE_URL="postgresql://user:password@host:port/database?schema=public"
+
+# Base APIs configuration (format: name1:url1,name2:url2)
+BASE_APIS="production:https://api.example.com,staging:https://staging-api.example.com"
 ```
 
 #### Run migrations
@@ -80,15 +83,34 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 ## Usage
 
+### Configuration
+
+Base APIs are configured via the `BASE_APIS` environment variable. The format is:
+
+```
+BASE_APIS=name1:url1,name2:url2
+```
+
+**Example:**
+
+```bash
+BASE_APIS="production:https://api.example.com,staging:https://staging-api.example.com"
+```
+
+Each API is specified as `name:url` where:
+
+- `name` is a unique identifier/key for the API
+- `url` is the base URL of the API
+
+Multiple APIs are separated by commas. The first API in the list is used as the default.
+
 ### Web UI
 
-1. **Configure Main API**:
+1. **View Base APIs**:
 
    - Navigate to the "Configuration" tab
-   - Enter your main API base URL (e.g., `https://api.example.com`)
-   - Optionally add authentication headers (JSON format)
-   - Set request timeout (default: 30000ms)
-   - Click "Save Configuration"
+   - View your configured base APIs (read-only)
+   - Base APIs are configured via the `BASE_APIS` environment variable
 
 2. **Create Overrides**:
 
@@ -149,8 +171,12 @@ The proxy will:
 
 ### Configuration
 
-- `GET /api/config` - Get main API configuration
-- `PUT /api/config` - Update main API configuration
+- `GET /api/config` - Get API configuration (read-only, for backward compatibility)
+- `GET /api/base-apis` - List all base APIs (read-only, from BASE_APIS environment variable)
+- `GET /api/base-apis/[id]` - Get a specific base API (read-only)
+- `GET /api/base-apis/export` - Export base APIs as JSON
+
+**Note:** Base APIs are configured via the `BASE_APIS` environment variable. The API endpoints are read-only and cannot be used to modify configurations.
 
 ### Proxy
 
@@ -170,12 +196,15 @@ The first matching override is returned. If no override matches, the request is 
 
 ## Database Schema
 
-The application uses two main models:
+The application uses the following models:
 
 - **Override**: Stores override rules and responses
-- **ApiConfig**: Stores main API configuration
+- **ApiConfig**: Legacy model (deprecated, kept for backward compatibility)
+- **BaseApi**: Legacy model (deprecated, base APIs now configured via `BASE_APIS` environment variable)
 
 You can view and edit the schema in `prisma/schema.prisma`.
+
+**Note:** Base APIs are now configured via the `BASE_APIS` environment variable instead of the database. The `BaseApi` and `ApiConfig` models are kept for backward compatibility but are no longer actively used for configuration.
 
 ## Development
 
