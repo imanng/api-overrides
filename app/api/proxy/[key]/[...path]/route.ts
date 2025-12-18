@@ -6,50 +6,62 @@ import { proxyRequest } from '@/lib/proxy'
 // Handle all HTTP methods
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
+  { params }: { params: Promise<{ key: string; path: string[] }> }
 ) {
   return handleRequest(request, params)
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
+  { params }: { params: Promise<{ key: string; path: string[] }> }
 ) {
   return handleRequest(request, params)
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
+  { params }: { params: Promise<{ key: string; path: string[] }> }
 ) {
   return handleRequest(request, params)
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
+  { params }: { params: Promise<{ key: string; path: string[] }> }
 ) {
   return handleRequest(request, params)
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
+  { params }: { params: Promise<{ key: string; path: string[] }> }
 ) {
   return handleRequest(request, params)
 }
 
 async function handleRequest(
   request: NextRequest,
-  params: Promise<{ path: string[] }>
+  params: Promise<{ key: string; path: string[] }>
 ) {
   try {
-    const { path: pathSegments } = await params
+    const { key, path: pathSegments } = await params
     const path = '/' + pathSegments.join('/')
     
     // Build full path including query string for override matching
     const searchParams = request.nextUrl.searchParams.toString()
     const fullPathForMatching = path + (searchParams ? `?${searchParams}` : '')
+
+    // Find base API by key
+    const baseApi = await prisma.baseApi.findUnique({
+      where: { key },
+    })
+
+    if (!baseApi) {
+      return NextResponse.json(
+        { error: `Base API with key "${key}" not found` },
+        { status: 404 }
+      )
+    }
 
     // Get all overrides
     const overrides = await prisma.override.findMany()
@@ -127,50 +139,14 @@ async function handleRequest(
       })
     }
 
-    // No override found, proxy to main API
-    // First, try to find a matching BaseApi by path prefix
-    const baseApis = await prisma.baseApi.findMany({
-      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
-    })
-
-    let selectedBaseApi = null
-    if (baseApis.length > 0) {
-      // Try to match by path prefix first
-      for (const api of baseApis) {
-        if (api.pathPrefix && path.startsWith(api.pathPrefix)) {
-          selectedBaseApi = api
-          break
-        }
-      }
-      // If no prefix match, use default
-      if (!selectedBaseApi) {
-        selectedBaseApi = baseApis.find((api) => api.isDefault) || baseApis[0]
-      }
-    }
-
-    // Fall back to old ApiConfig for backward compatibility
+    // No override found, proxy to the specified base API
     const config = await prisma.apiConfig.findFirst()
-    let baseUrl: string
-    let authHeaders: Record<string, string> | null = null
-    let timeout: number = 30000
+    const timeout = config?.timeout ?? 30000
 
-    if (selectedBaseApi) {
-      baseUrl = selectedBaseApi.baseUrl
-      authHeaders = selectedBaseApi.authHeaders
-        ? JSON.parse(selectedBaseApi.authHeaders)
-        : null
-      timeout = config?.timeout ?? 30000
-    } else if (config?.baseUrl) {
-      // Backward compatibility: use old ApiConfig
-      baseUrl = config.baseUrl
-      authHeaders = config.authHeaders ? JSON.parse(config.authHeaders) : null
-      timeout = config.timeout
-    } else {
-      return NextResponse.json(
-        { error: 'No base API configured' },
-        { status: 500 }
-      )
-    }
+    const baseUrl = baseApi.baseUrl
+    const authHeaders = baseApi.authHeaders
+      ? JSON.parse(baseApi.authHeaders)
+      : null
 
     // Build full URL for proxy (searchParams already extracted above)
     const fullPath = path + (searchParams ? `?${searchParams}` : '')
@@ -218,4 +194,3 @@ async function handleRequest(
     )
   }
 }
-

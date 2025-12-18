@@ -49,3 +49,8 @@ export type Override = Prisma.OverrideModel
  * 
  */
 export type ApiConfig = Prisma.ApiConfigModel
+/**
+ * Model BaseApi
+ * 
+ */
+export type BaseApi = Prisma.BaseApiModel

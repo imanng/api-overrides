@@ -385,7 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Override: 'Override',
-  ApiConfig: 'ApiConfig'
+  ApiConfig: 'ApiConfig',
+  BaseApi: 'BaseApi'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,7 +402,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "override" | "apiConfig"
+    modelProps: "override" | "apiConfig" | "baseApi"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +554,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BaseApi: {
+      payload: Prisma.$BaseApiPayload<ExtArgs>
+      fields: Prisma.BaseApiFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BaseApiFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BaseApiFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>
+        }
+        findFirst: {
+          args: Prisma.BaseApiFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BaseApiFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>
+        }
+        findMany: {
+          args: Prisma.BaseApiFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>[]
+        }
+        create: {
+          args: Prisma.BaseApiCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>
+        }
+        createMany: {
+          args: Prisma.BaseApiCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BaseApiCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>[]
+        }
+        delete: {
+          args: Prisma.BaseApiDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>
+        }
+        update: {
+          args: Prisma.BaseApiUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>
+        }
+        deleteMany: {
+          args: Prisma.BaseApiDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BaseApiUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BaseApiUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>[]
+        }
+        upsert: {
+          args: Prisma.BaseApiUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaseApiPayload>
+        }
+        aggregate: {
+          args: Prisma.BaseApiAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBaseApi>
+        }
+        groupBy: {
+          args: Prisma.BaseApiGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaseApiGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BaseApiCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaseApiCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -601,6 +676,7 @@ export const OverrideScalarFieldEnum = {
   status: 'status',
   responseBody: 'responseBody',
   ipAddress: 'ipAddress',
+  baseApiId: 'baseApiId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -619,6 +695,21 @@ export const ApiConfigScalarFieldEnum = {
 } as const
 
 export type ApiConfigScalarFieldEnum = (typeof ApiConfigScalarFieldEnum)[keyof typeof ApiConfigScalarFieldEnum]
+
+
+export const BaseApiScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  baseUrl: 'baseUrl',
+  pathPrefix: 'pathPrefix',
+  authHeaders: 'authHeaders',
+  isDefault: 'isDefault',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BaseApiScalarFieldEnum = (typeof BaseApiScalarFieldEnum)[keyof typeof BaseApiScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -690,6 +781,13 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -803,6 +901,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   override?: Prisma.OverrideOmit
   apiConfig?: Prisma.ApiConfigOmit
+  baseApi?: Prisma.BaseApiOmit
 }
 
 /* Types for Logging */

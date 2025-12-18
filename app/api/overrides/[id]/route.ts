@@ -34,6 +34,7 @@ export async function GET(
       status: override.status,
       responseBody: JSON.parse(override.responseBody),
       ipAddress: override.ipAddress,
+      baseApiId: override.baseApiId,
       createdAt: override.createdAt,
       updatedAt: override.updatedAt,
     })
@@ -103,6 +104,7 @@ export async function PUT(
     if (body.status !== undefined) updateData.status = body.status
     if (body.responseBody !== undefined)
       updateData.responseBody = JSON.stringify(body.responseBody)
+    if (body.baseApiId !== undefined) updateData.baseApiId = body.baseApiId || null
 
     const override = await prisma.override.update({
       where: { id },
@@ -118,6 +120,7 @@ export async function PUT(
       status: override.status,
       responseBody: JSON.parse(override.responseBody),
       ipAddress: override.ipAddress,
+      baseApiId: override.baseApiId,
       createdAt: override.createdAt,
       updatedAt: override.updatedAt,
     })

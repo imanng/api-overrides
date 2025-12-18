@@ -19,20 +19,37 @@ model Override {
   status    Int      @default(200) // Response status code
   responseBody String // JSON string of response body
   ipAddress String?  // IP address of the user who created the override
+  baseApiId String?  // Optional base API ID to use when proxying (if override doesn't match)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([method, path])
+  @@index([baseApiId])
 }
 
 model ApiConfig {
   id          String   @id @default(cuid())
-  baseUrl     String   // Main API base URL
-  authHeaders String?  // JSON string of authentication headers
+  baseUrl     String   // Main API base URL (deprecated, use BaseApi instead)
+  authHeaders String?  // JSON string of authentication headers (deprecated, use BaseApi instead)
   timeout     Int      @default(30000) // Request timeout in ms
   userKey     String?  // User key for accessing overrides when IP changes
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@unique([id])
+}
+
+model BaseApi {
+  id          String   @id @default(cuid())
+  key         String   @unique // Unique key/identifier for the API
+  baseUrl     String   // Base URL for the API
+  pathPrefix  String?  // Optional path prefix to match (e.g., "/api/v1")
+  authHeaders String?  // JSON string of authentication headers
+  isDefault   Boolean  @default(false) // Whether this is the default API
+  order       Int      @default(0) // Order for display and matching priority
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isDefault])
+  @@index([pathPrefix])
 }

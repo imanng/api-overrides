@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { BaseApi } from "@/types/api";
 
 interface OverrideFormProps {
   override?: Override | null;
@@ -37,9 +38,30 @@ export default function OverrideForm({
   const [body, setBody] = useState("");
   const [status, setStatus] = useState(200);
   const [responseBody, setResponseBody] = useState("");
+  const [baseApiId, setBaseApiId] = useState<string | null>(null);
+  const [baseApis, setBaseApis] = useState<BaseApi[]>([]);
+  const [isLoadingApis, setIsLoadingApis] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { addToast } = useToast();
+
+  useEffect(() => {
+    const loadBaseApis = async () => {
+      try {
+        const response = await fetch("/api/base-apis");
+        if (response.ok) {
+          const apis: BaseApi[] = await response.json();
+          setBaseApis(apis);
+        }
+      } catch (error) {
+        console.error("Error loading base APIs:", error);
+      } finally {
+        setIsLoadingApis(false);
+      }
+    };
+
+    loadBaseApis();
+  }, []);
 
   useEffect(() => {
     if (override) {
@@ -55,6 +77,7 @@ export default function OverrideForm({
           ? override.responseBody
           : JSON.stringify(override.responseBody, null, 2)
       );
+      setBaseApiId(override.baseApiId || null);
     }
   }, [override]);
 
@@ -67,6 +90,10 @@ export default function OverrideForm({
 
     if (!responseBody.trim()) {
       newErrors.responseBody = "Response body is required";
+    }
+
+    if (!baseApiId) {
+      newErrors.baseApiId = "Base API is required";
     }
 
     // Validate JSON fields
@@ -122,6 +149,7 @@ export default function OverrideForm({
             return responseBody;
           }
         })(),
+        baseApiId: baseApiId || null,
       };
 
       const url = override ? `/api/overrides/${override.id}` : "/api/overrides";
@@ -255,6 +283,37 @@ export default function OverrideForm({
             <AlertDescription>{errors.responseBody}</AlertDescription>
           </Alert>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="baseApiId">
+          Base API <span className="text-destructive">*</span>
+        </Label>
+        <Select
+          value={baseApiId || ""}
+          onValueChange={(value) => setBaseApiId(value)}
+          disabled={isLoadingApis}
+        >
+          <SelectTrigger id="baseApiId">
+            <SelectValue placeholder="Select a base API" />
+          </SelectTrigger>
+          <SelectContent>
+            {baseApis.map((api) => (
+              <SelectItem key={api.id} value={api.id}>
+                {api.key} {api.isDefault && "(Default)"}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.baseApiId && (
+          <Alert variant="destructive">
+            <AlertDescription>{errors.baseApiId}</AlertDescription>
+          </Alert>
+        )}
+        <p className="text-xs text-muted-foreground">
+          The base API that will be used when proxying requests that don't match
+          this override
+        </p>
       </div>
 
       <div className="flex gap-3 pt-4">

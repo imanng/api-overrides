@@ -110,29 +110,32 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 ### API Endpoint
 
-Once configured, you can make requests to the proxy endpoint:
+Once configured, you can make requests to the proxy endpoint using the base API key:
 
 ```
-/api/proxy/your/path/here
+/api/proxy/[base-api-key]/your/path/here
 ```
 
 **Example:**
 
 ```bash
-# GET request
-curl http://localhost:3000/api/proxy/api/users/123
+# GET request (using base API key "production-api")
+curl http://localhost:3000/api/proxy/production-api/api/users/123
 
-# POST request with body
-curl -X POST http://localhost:3000/api/proxy/api/users \
+# POST request with body (using base API key "staging-api")
+curl -X POST http://localhost:3000/api/proxy/staging-api/api/users \
   -H "Content-Type: application/json" \
   -d '{"name": "John"}'
 ```
 
 The proxy will:
 
-1. Check for a matching override (method, path, headers, body)
-2. If match found: return the override response
-3. If no match: proxy the request to your main API (configured in the UI)
+1. Find the base API by the key in the URL path
+2. Check for a matching override (method, path, headers, body)
+3. If match found: return the override response
+4. If no match: proxy the request to the specified base API
+
+**Note:** The base API key must match a configured base API. If the key doesn't exist, you'll receive a 404 error.
 
 ## API Routes
 
@@ -151,7 +154,8 @@ The proxy will:
 
 ### Proxy
 
-- `GET /api/proxy/[...path]` - Proxy endpoint (handles all HTTP methods)
+- `GET /api/proxy/[key]/[...path]` - Proxy endpoint with base API key (handles all HTTP methods)
+- `GET /api/proxy/[...path]` - Legacy proxy endpoint (uses default routing, handles all HTTP methods)
 
 ## Override Matching
 

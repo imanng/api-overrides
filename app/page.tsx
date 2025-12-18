@@ -3,17 +3,29 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { Override } from "@/types/override";
+import type { BaseApi } from "@/types/api";
 import OverrideList from "./components/OverrideList";
 import OverrideForm from "./components/OverrideForm";
 import ConfigForm from "./components/ConfigForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function Home() {
   const [overrides, setOverrides] = useState<Override[]>([]);
+  const [baseApis, setBaseApis] = useState<BaseApi[]>([]);
+  const [selectedBaseApiId, setSelectedBaseApiId] = useState<string | null>(
+    null
+  );
   const [editingOverride, setEditingOverride] = useState<Override | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"overrides" | "config">(
@@ -24,6 +36,7 @@ export default function Home() {
 
   useEffect(() => {
     loadOverrides();
+    loadBaseApis();
   }, []);
 
   const loadOverrides = async () => {
@@ -39,6 +52,28 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+
+  const loadBaseApis = async () => {
+    try {
+      const response = await fetch("/api/base-apis");
+      if (response.ok) {
+        const apis: BaseApi[] = await response.json();
+        setBaseApis(apis);
+        // Set default to first API or default API if available
+        if (apis.length > 0) {
+          const defaultApi = apis.find((api) => api.isDefault) || apis[0];
+          setSelectedBaseApiId(defaultApi.id);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading base APIs:", error);
+    }
+  };
+
+  // Filter overrides based on selected base API
+  const filteredOverrides = selectedBaseApiId
+    ? overrides.filter((override) => override.baseApiId === selectedBaseApiId)
+    : overrides;
 
   const handleEdit = (override: Override) => {
     setEditingOverride(override);
@@ -137,7 +172,32 @@ export default function Home() {
                 Configure API overrides to intercept and modify API responses
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              {baseApis.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Base API:
+                  </span>
+                  <Select
+                    value={selectedBaseApiId || "__all__"}
+                    onValueChange={(value) =>
+                      setSelectedBaseApiId(value === "__all__" ? null : value)
+                    }
+                  >
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="All Base APIs" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">All Base APIs</SelectItem>
+                      {baseApis.map((api) => (
+                        <SelectItem key={api.id} value={api.id}>
+                          {api.key} {api.isDefault && "(Default)"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <Link href="/settings">
                 <Button
                   variant="ghost"
@@ -196,7 +256,7 @@ export default function Home() {
                   </div>
                 ) : (
                   <OverrideList
-                    overrides={overrides}
+                    overrides={filteredOverrides}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                   />
@@ -246,12 +306,13 @@ export default function Home() {
                     Once configured, you can make requests to:
                   </p>
                   <code className="block text-sm bg-muted p-2 rounded mt-2 font-mono">
-                    /api/proxy/your/path/here
+                    /api/proxy/[base-api-key]/your/path/here
                   </code>
                   <p className="mt-3">
-                    The proxy will check for matching overrides first. If no
-                    override matches, it will forward the request to your main
-                    API.
+                    Replace <code className="text-xs">[base-api-key]</code> with
+                    the key of a configured base API. The proxy will check for
+                    matching overrides first. If no override matches, it will
+                    forward the request to the specified base API.
                   </p>
                 </AlertDescription>
               </Alert>

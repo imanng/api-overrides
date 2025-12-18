@@ -1,7 +1,8 @@
 "use client";
 
 import type { Override } from "@/types/override";
-import { useState } from "react";
+import type { BaseApi } from "@/types/api";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,25 @@ export default function OverrideCard({
   onDelete,
 }: OverrideCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [baseApi, setBaseApi] = useState<BaseApi | null>(null);
   const { showConfirm, showAlert } = useAlertDialog();
+
+  useEffect(() => {
+    if (override.baseApiId) {
+      const loadBaseApi = async () => {
+        try {
+          const response = await fetch(`/api/base-apis/${override.baseApiId}`);
+          if (response.ok) {
+            const api: BaseApi = await response.json();
+            setBaseApi(api);
+          }
+        } catch (error) {
+          console.error("Error loading base API:", error);
+        }
+      };
+      loadBaseApi();
+    }
+  }, [override.baseApiId]);
 
   const handleDelete = async () => {
     showConfirm(
@@ -48,6 +67,34 @@ export default function OverrideCard({
     );
   };
 
+  const handleOpenInNewTab = () => {
+    // Construct the proxy URL
+    // Remove leading slash from path if present
+    let cleanPath = override.path.startsWith("/")
+      ? override.path.slice(1)
+      : override.path;
+
+    // Encode path segments (but preserve query string if present)
+    const [pathPart, queryPart] = cleanPath.split("?");
+    const encodedPath = pathPart
+      .split("/")
+      .map((segment) => encodeURIComponent(segment))
+      .join("/");
+    const fullPath = queryPart ? `${encodedPath}?${queryPart}` : encodedPath;
+
+    let proxyUrl: string;
+    if (baseApi?.key) {
+      // Use the base API key route: /api/proxy/[key]/[...path]
+      proxyUrl = `/api/proxy/${baseApi.key}/${fullPath}`;
+    } else {
+      // Use the legacy route: /api/proxy/[...path]
+      proxyUrl = `/api/proxy/${fullPath}`;
+    }
+
+    // Open in new tab
+    window.open(proxyUrl, "_blank");
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -59,6 +106,14 @@ export default function OverrideCard({
             </code>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenInNewTab}
+              title="Open in new tab"
+            >
+              🔗 Open
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -116,17 +171,25 @@ export default function OverrideCard({
                 </code>
               </span>
             )}
-            <span>
-              <span className="font-semibold text-muted-foreground">
-                Response:
-              </span>{" "}
-              <code className="text-muted-foreground">
-                {typeof override.responseBody === "string"
-                  ? override.responseBody.substring(0, 50) + "..."
-                  : JSON.stringify(override.responseBody).substring(0, 50) +
-                    "..."}
-              </code>
-            </span>
+            {baseApi && (
+              <span>
+                <span className="font-semibold text-muted-foreground">
+                  Base API:
+                </span>{" "}
+                <code className="text-muted-foreground">{baseApi.key}</code>
+              </span>
+            )}
+          </div>
+          <div className="text-xs">
+            <span className="font-semibold text-muted-foreground">
+              Response:
+            </span>{" "}
+            <code className="text-muted-foreground">
+              {typeof override.responseBody === "string"
+                ? override.responseBody.substring(0, 50) + "..."
+                : JSON.stringify(override.responseBody).substring(0, 50) +
+                  "..."}
+            </code>
           </div>
         </div>
       </CardContent>

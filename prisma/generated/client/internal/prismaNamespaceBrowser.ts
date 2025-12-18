@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Override: 'Override',
-  ApiConfig: 'ApiConfig'
+  ApiConfig: 'ApiConfig',
+  BaseApi: 'BaseApi'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -80,6 +81,7 @@ export const OverrideScalarFieldEnum = {
   status: 'status',
   responseBody: 'responseBody',
   ipAddress: 'ipAddress',
+  baseApiId: 'baseApiId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -98,6 +100,21 @@ export const ApiConfigScalarFieldEnum = {
 } as const
 
 export type ApiConfigScalarFieldEnum = (typeof ApiConfigScalarFieldEnum)[keyof typeof ApiConfigScalarFieldEnum]
+
+
+export const BaseApiScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  baseUrl: 'baseUrl',
+  pathPrefix: 'pathPrefix',
+  authHeaders: 'authHeaders',
+  isDefault: 'isDefault',
+  order: 'order',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BaseApiScalarFieldEnum = (typeof BaseApiScalarFieldEnum)[keyof typeof BaseApiScalarFieldEnum]
 
 
 export const SortOrder = {

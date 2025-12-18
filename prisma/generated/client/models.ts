@@ -10,4 +10,5 @@
  */
 export type * from './models/Override'
 export type * from './models/ApiConfig'
+export type * from './models/BaseApi'
 export type * from './commonInputTypes'

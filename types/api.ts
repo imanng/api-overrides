@@ -20,3 +20,33 @@ export interface UpdateApiConfigInput {
   timeout?: number
 }
 
+export interface BaseApi {
+  id: string
+  key: string
+  baseUrl: string
+  pathPrefix: string | null
+  authHeaders: Record<string, string> | null
+  isDefault: boolean
+  order: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface CreateBaseApiInput {
+  key: string
+  baseUrl: string
+  pathPrefix?: string | null
+  authHeaders?: Record<string, string>
+  isDefault?: boolean
+  order?: number
+}
+
+export interface UpdateBaseApiInput {
+  key?: string
+  baseUrl?: string
+  pathPrefix?: string | null
+  authHeaders?: Record<string, string>
+  isDefault?: boolean
+  order?: number
+}
+

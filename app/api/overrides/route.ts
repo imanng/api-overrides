@@ -12,7 +12,7 @@ export async function GET() {
     })
 
     return NextResponse.json(
-      overrides.map((override: { id: string; method: string; path: string; headers: string | null; body: string | null; status: number; responseBody: string; ipAddress: string | null; createdAt: Date; updatedAt: Date }) => ({
+      overrides.map((override: { id: string; method: string; path: string; headers: string | null; body: string | null; status: number; responseBody: string; ipAddress: string | null; baseApiId: string | null; createdAt: Date; updatedAt: Date }) => ({
         id: override.id,
         method: override.method,
         path: override.path,
@@ -21,6 +21,7 @@ export async function GET() {
         status: override.status,
         responseBody: JSON.parse(override.responseBody),
         ipAddress: override.ipAddress,
+        baseApiId: override.baseApiId,
         createdAt: override.createdAt,
         updatedAt: override.updatedAt,
       }))
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
         status: body.status ?? 200,
         responseBody: JSON.stringify(body.responseBody),
         ipAddress: clientIP,
+        baseApiId: body.baseApiId || null,
       },
     })
 
@@ -87,6 +89,7 @@ export async function POST(request: NextRequest) {
         status: override.status,
         responseBody: JSON.parse(override.responseBody),
         ipAddress: override.ipAddress,
+        baseApiId: override.baseApiId,
         createdAt: override.createdAt,
         updatedAt: override.updatedAt,
       },

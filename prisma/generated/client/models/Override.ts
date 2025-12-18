@@ -43,6 +43,7 @@ export type OverrideMinAggregateOutputType = {
   status: number | null
   responseBody: string | null
   ipAddress: string | null
+  baseApiId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +57,7 @@ export type OverrideMaxAggregateOutputType = {
   status: number | null
   responseBody: string | null
   ipAddress: string | null
+  baseApiId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,6 +71,7 @@ export type OverrideCountAggregateOutputType = {
   status: number
   responseBody: number
   ipAddress: number
+  baseApiId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,6 +95,7 @@ export type OverrideMinAggregateInputType = {
   status?: true
   responseBody?: true
   ipAddress?: true
+  baseApiId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -105,6 +109,7 @@ export type OverrideMaxAggregateInputType = {
   status?: true
   responseBody?: true
   ipAddress?: true
+  baseApiId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,6 +123,7 @@ export type OverrideCountAggregateInputType = {
   status?: true
   responseBody?: true
   ipAddress?: true
+  baseApiId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -218,6 +224,7 @@ export type OverrideGroupByOutputType = {
   status: number
   responseBody: string
   ipAddress: string | null
+  baseApiId: string | null
   createdAt: Date
   updatedAt: Date
   _count: OverrideCountAggregateOutputType | null
@@ -254,6 +261,7 @@ export type OverrideWhereInput = {
   status?: Prisma.IntFilter<"Override"> | number
   responseBody?: Prisma.StringFilter<"Override"> | string
   ipAddress?: Prisma.StringNullableFilter<"Override"> | string | null
+  baseApiId?: Prisma.StringNullableFilter<"Override"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Override"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Override"> | Date | string
 }
@@ -267,6 +275,7 @@ export type OverrideOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   responseBody?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  baseApiId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -283,6 +292,7 @@ export type OverrideWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.IntFilter<"Override"> | number
   responseBody?: Prisma.StringFilter<"Override"> | string
   ipAddress?: Prisma.StringNullableFilter<"Override"> | string | null
+  baseApiId?: Prisma.StringNullableFilter<"Override"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Override"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Override"> | Date | string
 }, "id">
@@ -296,6 +306,7 @@ export type OverrideOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   responseBody?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  baseApiId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OverrideCountOrderByAggregateInput
@@ -317,6 +328,7 @@ export type OverrideScalarWhereWithAggregatesInput = {
   status?: Prisma.IntWithAggregatesFilter<"Override"> | number
   responseBody?: Prisma.StringWithAggregatesFilter<"Override"> | string
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"Override"> | string | null
+  baseApiId?: Prisma.StringNullableWithAggregatesFilter<"Override"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Override"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Override"> | Date | string
 }
@@ -330,6 +342,7 @@ export type OverrideCreateInput = {
   status?: number
   responseBody: string
   ipAddress?: string | null
+  baseApiId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -343,6 +356,7 @@ export type OverrideUncheckedCreateInput = {
   status?: number
   responseBody: string
   ipAddress?: string | null
+  baseApiId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -356,6 +370,7 @@ export type OverrideUpdateInput = {
   status?: Prisma.IntFieldUpdateOperationsInput | number
   responseBody?: Prisma.StringFieldUpdateOperationsInput | string
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseApiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -369,6 +384,7 @@ export type OverrideUncheckedUpdateInput = {
   status?: Prisma.IntFieldUpdateOperationsInput | number
   responseBody?: Prisma.StringFieldUpdateOperationsInput | string
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseApiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -382,6 +398,7 @@ export type OverrideCreateManyInput = {
   status?: number
   responseBody: string
   ipAddress?: string | null
+  baseApiId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -395,6 +412,7 @@ export type OverrideUpdateManyMutationInput = {
   status?: Prisma.IntFieldUpdateOperationsInput | number
   responseBody?: Prisma.StringFieldUpdateOperationsInput | string
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseApiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -408,6 +426,7 @@ export type OverrideUncheckedUpdateManyInput = {
   status?: Prisma.IntFieldUpdateOperationsInput | number
   responseBody?: Prisma.StringFieldUpdateOperationsInput | string
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseApiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -421,6 +440,7 @@ export type OverrideCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   responseBody?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  baseApiId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -438,6 +458,7 @@ export type OverrideMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   responseBody?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  baseApiId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -451,6 +472,7 @@ export type OverrideMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   responseBody?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
+  baseApiId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -490,6 +512,7 @@ export type OverrideSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   status?: boolean
   responseBody?: boolean
   ipAddress?: boolean
+  baseApiId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["override"]>
@@ -503,6 +526,7 @@ export type OverrideSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   status?: boolean
   responseBody?: boolean
   ipAddress?: boolean
+  baseApiId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["override"]>
@@ -516,6 +540,7 @@ export type OverrideSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   status?: boolean
   responseBody?: boolean
   ipAddress?: boolean
+  baseApiId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["override"]>
@@ -529,11 +554,12 @@ export type OverrideSelectScalar = {
   status?: boolean
   responseBody?: boolean
   ipAddress?: boolean
+  baseApiId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OverrideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "method" | "path" | "headers" | "body" | "status" | "responseBody" | "ipAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["override"]>
+export type OverrideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "method" | "path" | "headers" | "body" | "status" | "responseBody" | "ipAddress" | "baseApiId" | "createdAt" | "updatedAt", ExtArgs["result"]["override"]>
 
 export type $OverridePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Override"
@@ -547,6 +573,7 @@ export type $OverridePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     status: number
     responseBody: string
     ipAddress: string | null
+    baseApiId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["override"]>
@@ -980,6 +1007,7 @@ export interface OverrideFieldRefs {
   readonly status: Prisma.FieldRef<"Override", 'Int'>
   readonly responseBody: Prisma.FieldRef<"Override", 'String'>
   readonly ipAddress: Prisma.FieldRef<"Override", 'String'>
+  readonly baseApiId: Prisma.FieldRef<"Override", 'String'>
   readonly createdAt: Prisma.FieldRef<"Override", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Override", 'DateTime'>
 }

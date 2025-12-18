@@ -7,6 +7,7 @@ export interface Override {
   status: number
   responseBody: any
   ipAddress: string | null
+  baseApiId: string | null
   createdAt: Date
   updatedAt: Date
 }
@@ -18,6 +19,7 @@ export interface CreateOverrideInput {
   body?: any
   status?: number
   responseBody: any
+  baseApiId?: string | null
 }
 
 export interface UpdateOverrideInput {
@@ -27,5 +29,6 @@ export interface UpdateOverrideInput {
   body?: any
   status?: number
   responseBody?: any
+  baseApiId?: string | null
 }
 
