@@ -10,28 +10,24 @@ import ConfigForm from "./components/ConfigForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function Home() {
   const [overrides, setOverrides] = useState<Override[]>([]);
   const [baseApis, setBaseApis] = useState<BaseApi[]>([]);
-  const [selectedBaseApiId, setSelectedBaseApiId] = useState<string | null>(
-    null
-  );
   const [editingOverride, setEditingOverride] = useState<Override | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"overrides" | "config">(
     "overrides"
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedBaseApiId, setSelectedBaseApiId] = useState<string | null>(
+    null
+  );
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -59,21 +55,11 @@ export default function Home() {
       if (response.ok) {
         const apis: BaseApi[] = await response.json();
         setBaseApis(apis);
-        // Set default to first API or default API if available
-        if (apis.length > 0) {
-          const defaultApi = apis.find((api) => api.isDefault) || apis[0];
-          setSelectedBaseApiId(defaultApi.id);
-        }
       }
     } catch (error) {
       console.error("Error loading base APIs:", error);
     }
   };
-
-  // Filter overrides based on selected base API
-  const filteredOverrides = selectedBaseApiId
-    ? overrides.filter((override) => override.baseApiId === selectedBaseApiId)
-    : overrides;
 
   const handleEdit = (override: Override) => {
     setEditingOverride(override);
@@ -173,31 +159,6 @@ export default function Home() {
               </p>
             </div>
             <div className="flex gap-2 items-center">
-              {baseApis.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    Base API:
-                  </span>
-                  <Select
-                    value={selectedBaseApiId || "__all__"}
-                    onValueChange={(value) =>
-                      setSelectedBaseApiId(value === "__all__" ? null : value)
-                    }
-                  >
-                    <SelectTrigger className="w-[200px]">
-                      <SelectValue placeholder="All Base APIs" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__all__">All Base APIs</SelectItem>
-                      {baseApis.map((api) => (
-                        <SelectItem key={api.id} value={api.id}>
-                          {api.key} {api.isDefault && "(Default)"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
               <Link href="/settings">
                 <Button
                   variant="ghost"
@@ -229,7 +190,7 @@ export default function Home() {
         >
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="overrides">Overrides</TabsTrigger>
-            <TabsTrigger value="config">Configuration</TabsTrigger>
+            <TabsTrigger value="config">API Configuration</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overrides" className="mt-6">
@@ -256,9 +217,18 @@ export default function Home() {
                   </div>
                 ) : (
                   <OverrideList
-                    overrides={filteredOverrides}
+                    overrides={overrides}
+                    baseApis={baseApis}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    searchQuery={searchQuery}
+                    selectedBaseApiId={selectedBaseApiId}
+                    selectedMethod={selectedMethod}
+                    selectedStatus={selectedStatus}
+                    onSearchChange={setSearchQuery}
+                    onBaseApiChange={setSelectedBaseApiId}
+                    onMethodChange={setSelectedMethod}
+                    onStatusChange={setSelectedStatus}
                   />
                 )}
               </div>

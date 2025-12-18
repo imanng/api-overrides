@@ -183,6 +183,37 @@ export default function OverrideForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="baseApiId">
+          Base API <span className="text-destructive">*</span>
+        </Label>
+        <Select
+          value={baseApiId || ""}
+          onValueChange={(value) => setBaseApiId(value)}
+          disabled={isLoadingApis}
+        >
+          <SelectTrigger id="baseApiId">
+            <SelectValue placeholder="Select a base API" />
+          </SelectTrigger>
+          <SelectContent>
+            {baseApis.map((api) => (
+              <SelectItem key={api.id} value={api.id}>
+                {api.key} {api.isDefault && "(Default)"}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.baseApiId && (
+          <Alert variant="destructive">
+            <AlertDescription>{errors.baseApiId}</AlertDescription>
+          </Alert>
+        )}
+        <p className="text-xs text-muted-foreground">
+          The base API that will be used when proxying requests that don't match
+          this override
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="method">HTTP Method</Label>
@@ -283,37 +314,6 @@ export default function OverrideForm({
             <AlertDescription>{errors.responseBody}</AlertDescription>
           </Alert>
         )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="baseApiId">
-          Base API <span className="text-destructive">*</span>
-        </Label>
-        <Select
-          value={baseApiId || ""}
-          onValueChange={(value) => setBaseApiId(value)}
-          disabled={isLoadingApis}
-        >
-          <SelectTrigger id="baseApiId">
-            <SelectValue placeholder="Select a base API" />
-          </SelectTrigger>
-          <SelectContent>
-            {baseApis.map((api) => (
-              <SelectItem key={api.id} value={api.id}>
-                {api.key} {api.isDefault && "(Default)"}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.baseApiId && (
-          <Alert variant="destructive">
-            <AlertDescription>{errors.baseApiId}</AlertDescription>
-          </Alert>
-        )}
-        <p className="text-xs text-muted-foreground">
-          The base API that will be used when proxying requests that don't match
-          this override
-        </p>
       </div>
 
       <div className="flex gap-3 pt-4">
