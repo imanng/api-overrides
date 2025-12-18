@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getClientIP } from '@/lib/get-client-ip'
+import { compareIPs } from '@/lib/ip-utils'
 
 // GET - Get all overrides using user key
 export async function GET(request: NextRequest) {
@@ -24,10 +26,25 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Return all overrides
-    const overrides = await prisma.override.findMany({
+    // Get client IP address (normalized)
+    const clientIP = getClientIP(request)
+
+    if (!clientIP) {
+      return NextResponse.json(
+        { error: 'Unable to determine client IP address' },
+        { status: 400 }
+      )
+    }
+
+    // Fetch all overrides and filter by IP (supports both IPv4 and IPv6, handles normalization)
+    const allOverrides = await prisma.override.findMany({
       orderBy: { createdAt: 'desc' },
     })
+
+    // Filter overrides that match the client's IP address (handles IPv4, IPv6, and normalization)
+    const overrides = allOverrides.filter(override => 
+      override.ipAddress && compareIPs(override.ipAddress, clientIP)
+    )
 
     return NextResponse.json(
       overrides.map((override) => ({

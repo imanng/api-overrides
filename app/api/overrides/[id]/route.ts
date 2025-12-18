@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkDuplicateOverride } from '@/lib/validation'
+import { getClientIP } from '@/lib/get-client-ip'
+import { compareIPs } from '@/lib/ip-utils'
 import type { UpdateOverrideInput } from '@/types/override'
 
 interface RouteParams {
@@ -14,11 +16,30 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    
+    // Get client IP address (normalized)
+    const clientIP = getClientIP(request)
+
+    if (!clientIP) {
+      return NextResponse.json(
+        { error: 'Unable to determine client IP address' },
+        { status: 400 }
+      )
+    }
+
     const override = await prisma.override.findUnique({
       where: { id },
     })
 
     if (!override) {
+      return NextResponse.json(
+        { error: 'Override not found' },
+        { status: 404 }
+      )
+    }
+
+    // Only return override if IP address matches (handles IPv4, IPv6, and normalization)
+    if (!override.ipAddress || !compareIPs(override.ipAddress, clientIP)) {
       return NextResponse.json(
         { error: 'Override not found' },
         { status: 404 }
