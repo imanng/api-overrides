@@ -113,7 +113,7 @@ export default function ConfigForm() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-0">
+        <CardContent className="space-y-4">
           {/* Existing APIs */}
           {baseApis.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
