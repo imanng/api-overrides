@@ -70,7 +70,7 @@ export default function OverrideCard({
   const handleOpenInNewTab = () => {
     // Construct the proxy URL
     // Remove leading slash from path if present
-    let cleanPath = override.path.startsWith("/")
+    const cleanPath = override.path.startsWith("/")
       ? override.path.slice(1)
       : override.path;
 
