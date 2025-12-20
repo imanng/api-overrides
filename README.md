@@ -159,6 +159,15 @@ The proxy will:
 
 **Note:** The base API key must match a configured base API. If the key doesn't exist, you'll receive a 404 error.
 
+## Examples
+
+Check out the [api-overrides-examples](https://github.com/imanng/api-overrides-examples) repository for complete example applications demonstrating how to use API Overrides:
+
+- **Flutter Coffee App** - Mobile/web application built with Flutter
+- **Next.js Coffee App** - Server-rendered web application built with Next.js 16
+
+These examples show how to integrate API Overrides into both mobile and web applications.
+
 ## Use Cases
 
 ### 1. Mobile App Development
