@@ -159,6 +159,262 @@ The proxy will:
 
 **Note:** The base API key must match a configured base API. If the key doesn't exist, you'll receive a 404 error.
 
+## Use Cases
+
+### 1. Mobile App Development
+
+API Overrides is perfect for mobile app development where you need to test different API responses without modifying your backend or app code.
+
+**Setup:**
+
+1. Configure your production API as a base API:
+
+   ```bash
+   BASE_APIS="production:https://api.example.com"
+   ```
+
+2. Deploy API Overrides to a public URL (e.g., `https://api-overrides.vercel.app`)
+
+3. Update your mobile app's API base URL to point to the proxy:
+
+   ```swift
+   // iOS (Swift)
+   let baseURL = "https://api-overrides.vercel.app/api/proxy/production"
+   ```
+
+   ```kotlin
+   // Android (Kotlin)
+   val baseURL = "https://api-overrides.vercel.app/api/proxy/production"
+   ```
+
+**Benefits:**
+
+- Test error scenarios (404, 500, etc.) without backend changes
+- Simulate slow responses by creating overrides with delayed responses
+- Test edge cases with custom response data
+- Share override configurations with your team
+- Switch between production and staging APIs easily
+
+**Example:**
+
+Create an override for `/api/users/123` that returns a 404 error to test your app's error handling:
+
+- **Method**: GET
+- **Path**: `/api/users/123`
+- **Response Status**: 404
+- **Response Body**: `{"error": "User not found"}`
+
+### 2. Web App Development
+
+API Overrides works seamlessly with web applications, supporting both server-side requests and client-side requests from any SPA framework.
+
+#### 1. Server Requests
+
+Use API Overrides in server-side code, such as Next.js Server Components, API Routes, Server Actions, or any server-side rendering framework:
+
+```typescript
+// app/api/users/[id]/route.ts
+const API_OVERRIDES_URL = "https://api-overrides.vercel.app";
+const API_TOKEN = "your-api-token";
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const proxyUrl = `${API_OVERRIDES_URL}/api/proxy/production/api/users/${params.id}`;
+
+  const response = await fetch(proxyUrl, {
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+  });
+
+  return response;
+}
+```
+
+```typescript
+// app/users/[id]/page.tsx (Server Component)
+const API_OVERRIDES_URL = "https://api-overrides.vercel.app";
+const API_TOKEN = "your-api-token";
+
+async function getUser(id: string) {
+  const proxyUrl = `${API_OVERRIDES_URL}/api/proxy/production/api/users/${id}`;
+
+  const res = await fetch(proxyUrl, {
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    cache: "no-store", // or use revalidate for ISR
+  });
+
+  return res.json();
+}
+
+export default async function UserPage({ params }: { params: { id: string } }) {
+  const user = await getUser(params.id);
+  return <div>{user.name}</div>;
+}
+```
+
+```typescript
+// app/actions.ts (Server Actions)
+"use server";
+
+const API_OVERRIDES_URL = "https://api-overrides.vercel.app";
+const API_TOKEN = "your-api-token";
+
+export async function createUser(formData: FormData) {
+  const proxyUrl = `${API_OVERRIDES_URL}/api/proxy/production/api/users`;
+
+  const response = await fetch(proxyUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify({
+      name: formData.get("name"),
+      email: formData.get("email"),
+    }),
+  });
+
+  return response.json();
+}
+```
+
+#### 2. Client Requests
+
+Use API Overrides in client-side code from any SPA framework (React, Vue, Angular, Svelte, etc.) or Next.js Client Components:
+
+**Next.js Client Components:**
+
+```typescript
+// app/components/UserProfile.tsx (Client Component)
+"use client";
+
+import { useEffect, useState } from "react";
+
+const API_OVERRIDES_URL = "https://api-overrides.vercel.app";
+const API_TOKEN = "your-api-token";
+
+export default function UserProfile({ userId }: { userId: string }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const proxyUrl = `${API_OVERRIDES_URL}/api/proxy/production/api/users/${userId}`;
+
+      const response = await fetch(proxyUrl, {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
+      });
+
+      const data = await response.json();
+      setUser(data);
+    };
+
+    fetchUser();
+  }, [userId]);
+
+  return <div>{user?.name}</div>;
+}
+```
+
+**React (with Fetch API):**
+
+```typescript
+// lib/api-client.ts (Reusable client)
+const API_OVERRIDES_URL = "https://api-overrides.vercel.app";
+
+export async function fetchFromProxy(path: string, options?: RequestInit) {
+  const proxyUrl = `${API_OVERRIDES_URL}/api/proxy/production${path}`;
+
+  return fetch(proxyUrl, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+}
+
+// Usage in components
+const response = await fetchFromProxy("/api/users/123");
+const user = await response.json();
+```
+
+**React (with Axios):**
+
+```typescript
+import axios from "axios";
+
+const API_OVERRIDES_URL = "https://api-overrides.vercel.app";
+const API_TOKEN = "your-api-token";
+
+const apiClient = axios.create({
+  baseURL: `${API_OVERRIDES_URL}/api/proxy/production`,
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${API_TOKEN}`,
+  },
+});
+
+// Usage
+const response = await apiClient.get("/api/users/123");
+```
+
+**Vue:**
+
+```typescript
+const API_OVERRIDES_URL = "https://api-overrides.vercel.app";
+const API_TOKEN = "your-api-token";
+
+export async function fetchUser(userId: string) {
+  const response = await fetch(
+    `${API_OVERRIDES_URL}/api/proxy/production/api/users/${userId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+      },
+    }
+  );
+
+  return response.json();
+}
+```
+
+**Angular:**
+
+```typescript
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+
+@Injectable({
+  providedIn: "root",
+})
+export class ApiService {
+  // Use environment.ts for configuration
+  private baseUrl = "https://api-overrides.vercel.app/api/proxy/production";
+
+  constructor(private http: HttpClient) {}
+
+  getUser(id: string) {
+    return this.http.get(`${this.baseUrl}/api/users/${id}`);
+  }
+}
+```
+
+**Benefits:**
+
+- Test API responses during development without backend changes
+- Simulate different API states (loading, error, success)
+- Share override configurations across team members
+- Test both SSR and client-side rendering scenarios
+- Use the same proxy URL for both server and client requests
+- Works with any HTTP client library (fetch, axios, etc.)
+
 ## API Routes
 
 ### Override Management
@@ -168,6 +424,8 @@ The proxy will:
 - `GET /api/overrides/[id]` - Get a specific override
 - `PUT /api/overrides/[id]` - Update an override
 - `DELETE /api/overrides/[id]` - Delete an override
+- `GET /api/overrides/export` - Export all overrides as JSON
+- `POST /api/overrides/import` - Import overrides from JSON
 
 ### Configuration
 
@@ -211,24 +469,17 @@ You can view and edit the schema in `prisma/schema.prisma`.
 ### Database Management
 
 ```bash
-# View database in Prisma Studio (requires DATABASE_URL)
-# Note: Prisma Studio may not work directly with D1
-# Use Cloudflare dashboard or wrangler CLI instead
+# View database in Prisma Studio
+pnpm prisma studio
 
 # Create a new migration
 pnpm prisma migrate dev --name migration_name
 
-# Apply migrations to D1
+# Apply migrations to production
 pnpm db:migrate
 
-# Apply migrations locally
-npx wrangler d1 migrations apply DB --local
-
-# Execute SQL queries on D1
-npx wrangler d1 execute DB --command "SELECT * FROM Override"
-
-# Execute SQL from file
-npx wrangler d1 execute DB --file=./migrations/your-migration.sql
+# Generate Prisma client
+pnpm db:generate
 ```
 
 ### Project Structure
@@ -325,7 +576,7 @@ pnpm start
 
 If you see a TypeScript error about `PrismaClient` not being exported:
 
-1. Run `ç` to regenerate the client
+1. Run `pnpm db:generate` to regenerate the client
 2. Restart your TypeScript server/IDE
 
 ### Database Connection Error
@@ -339,9 +590,10 @@ If you get a database connection error:
 
 ### Proxy Not Working
 
-- Verify the main API base URL is configured correctly
+- Verify the base API URL is configured correctly in `BASE_APIS` environment variable
 - Check that the base URL is accessible from your server
-- Review the timeout settings if requests are timing out
+- Ensure the base API key in the proxy URL matches a configured base API
+- Review network connectivity and firewall settings
 
 ## License
 
