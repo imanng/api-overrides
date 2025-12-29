@@ -7,6 +7,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAlertDialog } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface OverrideCardProps {
   override: Override;
@@ -22,6 +28,10 @@ export default function OverrideCard({
   const [isDeleting, setIsDeleting] = useState(false);
   const [baseApi, setBaseApi] = useState<BaseApi | null>(null);
   const { showConfirm, showAlert } = useAlertDialog();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [responseData, setResponseData] = useState<unknown | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (override.baseApiId) {
@@ -67,7 +77,7 @@ export default function OverrideCard({
     );
   };
 
-  const handleOpenInNewTab = () => {
+  const getProxyUrl = () => {
     // Construct the proxy URL
     // Remove leading slash from path if present
     const cleanPath = override.path.startsWith("/")
@@ -82,17 +92,50 @@ export default function OverrideCard({
       .join("/");
     const fullPath = queryPart ? `${encodedPath}?${queryPart}` : encodedPath;
 
-    let proxyUrl: string;
     if (baseApi?.key) {
       // Use the base API key route: /api/proxy/[key]/[...path]
-      proxyUrl = `/api/proxy/${baseApi.key}/${fullPath}`;
+      return `/api/proxy/${baseApi.key}/${fullPath}`;
     } else {
       // Use the legacy route: /api/proxy/[...path]
-      proxyUrl = `/api/proxy/${fullPath}`;
+      return `/api/proxy/${fullPath}`;
     }
+  };
 
+  const handleOpenInNewTab = () => {
     // Open in new tab
-    window.open(proxyUrl, "_blank");
+    window.open(getProxyUrl(), "_blank");
+  };
+
+  const handleShowResponse = async () => {
+    setIsDialogOpen(true);
+    setIsFetching(true);
+    setFetchError(null);
+    setResponseData(null);
+
+    try {
+      const proxyUrl = getProxyUrl();
+      const fetchOptions: RequestInit = {
+        method: override.method,
+        headers: {
+          ...override.headers,
+        },
+      };
+
+      if (override.body) {
+        fetchOptions.body = JSON.stringify(override.body);
+      }
+
+      const response = await fetch(proxyUrl, fetchOptions);
+      const body = await response.json();
+      setResponseData(body);
+    } catch (error) {
+      console.error("Error fetching response:", error);
+      setFetchError(
+        error instanceof Error ? error.message : "Failed to fetch response"
+      );
+    } finally {
+      setIsFetching(false);
+    }
   };
 
   return (
@@ -116,6 +159,16 @@ export default function OverrideCard({
               className="text-xs"
             >
               🔗 Open
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShowResponse}
+              disabled={isFetching}
+              title="Show response"
+              className="text-xs"
+            >
+              {isFetching ? "Loading..." : "📋 Response"}
             </Button>
             <Button
               variant="outline"
@@ -200,6 +253,32 @@ export default function OverrideCard({
           </div>
         </div>
       </CardContent>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Response</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {isFetching && (
+              <div className="text-center py-4 text-muted-foreground">
+                Fetching response...
+              </div>
+            )}
+            {fetchError && (
+              <div className="p-4 bg-destructive/10 border border-destructive/20 rounded">
+                <p className="text-sm font-semibold text-destructive">Error</p>
+                <p className="text-sm text-destructive">{fetchError}</p>
+              </div>
+            )}
+            {responseData !== null && (
+              <pre className="text-xs p-2 bg-muted rounded overflow-x-auto break-all whitespace-pre-wrap">
+                {JSON.stringify(responseData, null, 2)}
+              </pre>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

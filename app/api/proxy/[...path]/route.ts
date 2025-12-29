@@ -4,6 +4,14 @@ import { findMatchingOverride } from '@/lib/matching'
 import { proxyRequest } from '@/lib/proxy'
 import { getBaseApisFromEnv, getDefaultBaseApi } from '@/lib/env-config'
 
+/**
+ * Clean JSON string by removing trailing commas before closing brackets/braces
+ */
+function cleanJsonString(jsonString: string): string {
+  // Remove trailing commas before ] or }
+  return jsonString.replace(/,(\s*[}\]])/g, '$1')
+}
+
 // Handle all HTTP methods
 export async function GET(
   request: NextRequest,
@@ -105,10 +113,22 @@ async function handleRequest(
     // If override found, return override response
     // Pass through all original request headers in the response
     if (matchingOverride) {
-      const responseBody =
-        typeof matchingOverride.responseBody === 'string'
-          ? matchingOverride.responseBody
-          : JSON.stringify(matchingOverride.responseBody)
+      // Ensure responseBody is valid JSON by parsing and re-stringifying
+      let responseBody: string
+      if (typeof matchingOverride.responseBody === 'string') {
+        try {
+          // Clean trailing commas before parsing
+          const cleaned = cleanJsonString(matchingOverride.responseBody)
+          // Parse and re-stringify to ensure valid JSON
+          const parsed = JSON.parse(cleaned)
+          responseBody = JSON.stringify(parsed)
+        } catch {
+          // If parsing fails, return as-is (might be plain text)
+          responseBody = matchingOverride.responseBody
+        }
+      } else {
+        responseBody = JSON.stringify(matchingOverride.responseBody)
+      }
 
       // Create response headers from original request headers
       const responseHeaders: Record<string, string> = {}
