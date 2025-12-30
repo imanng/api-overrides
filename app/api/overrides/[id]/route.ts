@@ -77,12 +77,30 @@ export async function PUT(
     const { id } = await params
     const body: UpdateOverrideInput = await request.json()
 
+    // Get client IP address (normalized)
+    const clientIP = getClientIP(request)
+
+    if (!clientIP) {
+      return NextResponse.json(
+        { error: 'Unable to determine client IP address' },
+        { status: 400 }
+      )
+    }
+
     // Check if override exists
     const existing = await prisma.override.findUnique({
       where: { id },
     })
 
     if (!existing) {
+      return NextResponse.json(
+        { error: 'Override not found' },
+        { status: 404 }
+      )
+    }
+
+    // Only allow update if IP address matches (handles IPv4, IPv6, and normalization)
+    if (!existing.ipAddress || !compareIPs(existing.ipAddress, clientIP)) {
       return NextResponse.json(
         { error: 'Override not found' },
         { status: 404 }
@@ -162,11 +180,29 @@ export async function DELETE(
   try {
     const { id } = await params
 
+    // Get client IP address (normalized)
+    const clientIP = getClientIP(request)
+
+    if (!clientIP) {
+      return NextResponse.json(
+        { error: 'Unable to determine client IP address' },
+        { status: 400 }
+      )
+    }
+
     const override = await prisma.override.findUnique({
       where: { id },
     })
 
     if (!override) {
+      return NextResponse.json(
+        { error: 'Override not found' },
+        { status: 404 }
+      )
+    }
+
+    // Only allow delete if IP address matches (handles IPv4, IPv6, and normalization)
+    if (!override.ipAddress || !compareIPs(override.ipAddress, clientIP)) {
       return NextResponse.json(
         { error: 'Override not found' },
         { status: 404 }

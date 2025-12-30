@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { findMatchingOverride } from '@/lib/matching'
 import { proxyRequest } from '@/lib/proxy'
 import { getBaseApiByKey } from '@/lib/env-config'
+import { getClientIP } from '@/lib/get-client-ip'
+import { compareIPs } from '@/lib/ip-utils'
 
 /**
  * Clean JSON string by removing trailing commas before closing brackets/braces
@@ -70,8 +72,23 @@ async function handleRequest(
       )
     }
 
-    // Get all overrides
-    const overrides = await prisma.override.findMany()
+    // Get client IP address (normalized)
+    const clientIP = getClientIP(request)
+
+    if (!clientIP) {
+      return NextResponse.json(
+        { error: 'Unable to determine client IP address' },
+        { status: 400 }
+      )
+    }
+
+    // Get all overrides and filter by IP (only return overrides that match the client's IP)
+    const allOverrides = await prisma.override.findMany()
+    
+    // Filter overrides that match the client's IP address (handles IPv4, IPv6, and normalization)
+    const overrides = allOverrides.filter(override => 
+      override.ipAddress && compareIPs(override.ipAddress, clientIP)
+    )
 
     // Parse request headers
     const headers: Record<string, string> = {}
