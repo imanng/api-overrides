@@ -23,9 +23,9 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     })
 
-    // Filter overrides that match the client's IP address (handles IPv4, IPv6, and normalization)
+    // Filter overrides: include those without IP (null/empty) or those that match the client's IP
     const overrides = allOverrides.filter(override => 
-      override.ipAddress && compareIPs(override.ipAddress, clientIP)
+      !override.ipAddress || compareIPs(override.ipAddress, clientIP)
     )
 
     return NextResponse.json(

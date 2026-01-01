@@ -38,8 +38,8 @@ export async function GET(
       )
     }
 
-    // Only return override if IP address matches (handles IPv4, IPv6, and normalization)
-    if (!override.ipAddress || !compareIPs(override.ipAddress, clientIP)) {
+    // Only return override if it has no IP (accessible to all) or IP matches (handles IPv4, IPv6, and normalization)
+    if (override.ipAddress && !compareIPs(override.ipAddress, clientIP)) {
       return NextResponse.json(
         { error: 'Override not found' },
         { status: 404 }
@@ -99,8 +99,8 @@ export async function PUT(
       )
     }
 
-    // Only allow update if IP address matches (handles IPv4, IPv6, and normalization)
-    if (!existing.ipAddress || !compareIPs(existing.ipAddress, clientIP)) {
+    // Only allow update if it has no IP (accessible to all) or IP matches (handles IPv4, IPv6, and normalization)
+    if (existing.ipAddress && !compareIPs(existing.ipAddress, clientIP)) {
       return NextResponse.json(
         { error: 'Override not found' },
         { status: 404 }
@@ -201,8 +201,8 @@ export async function DELETE(
       )
     }
 
-    // Only allow delete if IP address matches (handles IPv4, IPv6, and normalization)
-    if (!override.ipAddress || !compareIPs(override.ipAddress, clientIP)) {
+    // Only allow delete if it has no IP (accessible to all) or IP matches (handles IPv4, IPv6, and normalization)
+    if (override.ipAddress && !compareIPs(override.ipAddress, clientIP)) {
       return NextResponse.json(
         { error: 'Override not found' },
         { status: 404 }
