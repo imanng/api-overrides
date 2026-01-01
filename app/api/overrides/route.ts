@@ -65,23 +65,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check for duplicate override
+    // Get client IP address (normalized) for duplicate check
+    const clientIP = getClientIP(request)
+
+    // Check for duplicate override (including IP address)
     const isDuplicate = await checkDuplicateOverride(
       body.method,
       body.path,
       body.headers || null,
-      body.body || null
+      body.body || null,
+      clientIP
     )
 
     if (isDuplicate) {
       return NextResponse.json(
-        { error: 'An override with the same method, path, headers, and body already exists' },
+        { error: 'An override with the same method, path, headers, body, and IP address already exists' },
         { status: 409 }
       )
     }
-
-    // Get client IP address (normalized)
-    const clientIP = getClientIP(request)
 
     const override = await prisma.override.create({
       data: {

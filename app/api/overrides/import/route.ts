@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getClientIP } from '@/lib/get-client-ip'
+import { checkDuplicateOverride } from '@/lib/validation'
 
 // POST - Import overrides from JSON file
 export async function POST(request: NextRequest) {
@@ -23,15 +24,15 @@ export async function POST(request: NextRequest) {
         method: string
         path: string
         headers?: Record<string, string> | null
-        body?: any | null
+        body?: unknown | null
         status?: number
-        responseBody: any
+        responseBody: unknown
       }>
     }
 
     try {
       importData = JSON.parse(text)
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Invalid JSON file' },
         { status: 400 }
@@ -61,6 +62,22 @@ export async function POST(request: NextRequest) {
         if (!override.method || !override.path || override.responseBody === undefined) {
           results.errors.push(
             `Skipped override: missing required fields (method: ${override.method}, path: ${override.path})`
+          )
+          continue
+        }
+
+        // Check for duplicate override (including IP address)
+        const isDuplicate = await checkDuplicateOverride(
+          override.method,
+          override.path,
+          override.headers || null,
+          override.body || null,
+          clientIP
+        )
+
+        if (isDuplicate) {
+          results.errors.push(
+            `Skipped override: duplicate found (method: ${override.method}, path: ${override.path})`
           )
           continue
         }

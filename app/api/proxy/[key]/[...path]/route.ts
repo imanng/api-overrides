@@ -82,14 +82,28 @@ async function handleRequest(
       )
     }
 
-    // Get all overrides and filter by IP
-    // Include overrides without IP address (accessible to all) or overrides that match the client's IP
-    const allOverrides = await prisma.override.findMany()
-    
-    // Filter overrides: include those without IP (null/empty) or those that match the client's IP
-    const overrides = allOverrides.filter(override => 
-      !override.ipAddress || compareIPs(override.ipAddress, clientIP)
+    // Get overrides accessible to this client
+    // Include: overrides without IP (null - accessible to all) OR overrides that might match client IP
+    // We fetch all non-null IP overrides and filter with compareIPs for normalization
+    const overridesWithNullIP = await prisma.override.findMany({
+      where: {
+        ipAddress: null,
+      },
+    })
+
+    const overridesWithIP = await prisma.override.findMany({
+      where: {
+        ipAddress: { not: null },
+      },
+    })
+
+    // Filter overrides with IP that match the client's IP (handles IPv4, IPv6, normalization)
+    const matchingIPOverrides = overridesWithIP.filter(override => 
+      override.ipAddress && compareIPs(override.ipAddress, clientIP)
     )
+
+    // Combine: null IP overrides (accessible to all) + matching IP overrides
+    const overrides = [...overridesWithNullIP, ...matchingIPOverrides]
 
     // Parse request headers
     const headers: Record<string, string> = {}

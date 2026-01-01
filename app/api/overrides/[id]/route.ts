@@ -116,6 +116,8 @@ export async function PUT(
     const bodyToCheck = body.body !== undefined 
       ? body.body 
       : (existing.body ? JSON.parse(existing.body) : null)
+    // IP address should remain the same (can't change IP on update)
+    const ipAddressToCheck = existing.ipAddress
 
     // Check for duplicate override (excluding current override)
     const isDuplicate = await checkDuplicateOverride(
@@ -123,12 +125,13 @@ export async function PUT(
       pathToCheck,
       headersToCheck,
       bodyToCheck,
+      ipAddressToCheck,
       id
     )
 
     if (isDuplicate) {
       return NextResponse.json(
-        { error: 'An override with the same method, path, headers, and body already exists' },
+        { error: 'An override with the same method, path, headers, body, and IP address already exists' },
         { status: 409 }
       )
     }

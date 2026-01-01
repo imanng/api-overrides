@@ -26,17 +26,18 @@ function normalizeHeadersString(headers: Record<string, string> | null): string 
 /**
  * Stringify body for comparison (handles null/undefined)
  */
-function normalizeBodyString(body: any | null): string | null {
+function normalizeBodyString(body: unknown | null): string | null {
   if (body === null || body === undefined) return null
   return JSON.stringify(body)
 }
 
 /**
- * Check if an override with the same method, path, headers, and body already exists
+ * Check if an override with the same method, path, headers, body, and IP address already exists
  * @param method - HTTP method
  * @param path - URL path
  * @param headers - Request headers
  * @param body - Request body
+ * @param ipAddress - IP address of the user creating the override
  * @param excludeId - Optional ID to exclude from check (for updates)
  * @returns true if duplicate exists, false otherwise
  */
@@ -44,7 +45,8 @@ export async function checkDuplicateOverride(
   method: string,
   path: string,
   headers: Record<string, string> | null,
-  body: any | null,
+  body: unknown | null,
+  ipAddress: string | null,
   excludeId?: string
 ): Promise<boolean> {
   // Normalize path and method
@@ -55,21 +57,30 @@ export async function checkDuplicateOverride(
   const headersString = normalizeHeadersString(headers)
   const bodyString = normalizeBodyString(body)
 
-  // Get all overrides with matching method and path
-  const allOverrides = await prisma.override.findMany({
-    where: {
-      method: normalizedMethod,
-      path: normalizedPath,
-    },
+  // Build where clause to filter at database level
+  const where: {
+    method: string
+    path: string
+    ipAddress: string | null
+    id?: { not: string }
+  } = {
+    method: normalizedMethod,
+    path: normalizedPath,
+    ipAddress: ipAddress,
+  }
+
+  // Exclude the current override if updating
+  if (excludeId) {
+    where.id = { not: excludeId }
+  }
+
+  // Get overrides with matching method, path, and IP address
+  const matchingOverrides = await prisma.override.findMany({
+    where,
   })
 
-  // Check each override for matching headers and body
-  for (const override of allOverrides) {
-    // Skip the override being updated
-    if (excludeId && override.id === excludeId) {
-      continue
-    }
-
+  // Check each override for matching headers and body (stored as JSON strings)
+  for (const override of matchingOverrides) {
     // Normalize override headers for comparison
     const overrideHeaders = override.headers ? JSON.parse(override.headers) : null
     const overrideHeadersString = normalizeHeadersString(overrideHeaders)
@@ -85,7 +96,7 @@ export async function checkDuplicateOverride(
       continue
     }
 
-    // If we get here, we have a duplicate
+    // If we get here, we have a duplicate (same method, path, headers, body, and IP)
     return true
   }
 
