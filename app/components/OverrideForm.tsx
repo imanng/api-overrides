@@ -64,28 +64,101 @@ export default function OverrideForm({
   }, []);
 
   useEffect(() => {
-    if (override) {
+    // Clear errors when override changes
+    setErrors({});
+
+    if (override && !isLoadingApis) {
       setMethod(override.method);
       setPath(override.path);
-      setHeaders(
-        override.headers ? JSON.stringify(override.headers, null, 2) : ""
-      );
-      setBody(override.body ? JSON.stringify(override.body, null, 2) : "");
+
+      // Format headers - ensure it's valid JSON string
+      if (override.headers) {
+        try {
+          setHeaders(JSON.stringify(override.headers, null, 2));
+        } catch {
+          setHeaders(JSON.stringify(override.headers));
+        }
+      } else {
+        setHeaders("");
+      }
+
+      // Format body - ensure it's valid JSON string
+      if (override.body) {
+        try {
+          setBody(JSON.stringify(override.body, null, 2));
+        } catch {
+          setBody(JSON.stringify(override.body));
+        }
+      } else {
+        setBody("");
+      }
+
       setStatus(override.status);
-      setResponseBody(
-        typeof override.responseBody === "string"
-          ? override.responseBody
-          : JSON.stringify(override.responseBody, null, 2)
-      );
-      setBaseApiId(override.baseApiId || null);
+
+      // Format responseBody - handle both string and object
+      if (typeof override.responseBody === "string") {
+        // If it's already a string, check if it's JSON and format it
+        const trimmed = override.responseBody.trim();
+        if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+          try {
+            const parsed = JSON.parse(trimmed);
+            setResponseBody(JSON.stringify(parsed, null, 2));
+          } catch {
+            // If it's not valid JSON, keep as is
+            setResponseBody(override.responseBody);
+          }
+        } else {
+          setResponseBody(override.responseBody);
+        }
+      } else {
+        setResponseBody(JSON.stringify(override.responseBody, null, 2));
+      }
+
+      // Set baseApiId after baseApis are loaded to ensure it's available
+      if (override.baseApiId) {
+        // Verify the baseApiId exists in the loaded baseApis
+        const apiExists = baseApis.some((api) => api.id === override.baseApiId);
+        if (apiExists) {
+          setBaseApiId(override.baseApiId);
+        } else {
+          setBaseApiId(null);
+        }
+      } else {
+        setBaseApiId(null);
+      }
+    } else if (!override) {
+      // Reset form when no override (creating new)
+      setMethod("GET");
+      setPath("");
+      setHeaders("");
+      setBody("");
+      setStatus(200);
+      setResponseBody("");
+      setBaseApiId(null);
+      setErrors({});
     }
-  }, [override]);
+  }, [override, baseApis, isLoadingApis]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!path.trim()) {
+    const trimmedPath = path.trim();
+    if (!trimmedPath) {
       newErrors.path = "Path is required";
+    } else {
+      // Validate path format - must start with /
+      if (!trimmedPath.startsWith("/")) {
+        newErrors.path = "Path must start with /";
+      }
+      // Validate it's a valid URL path format
+      // Check for invalid characters (but allow most URL-safe characters)
+      if (
+        trimmedPath.includes(" ") ||
+        trimmedPath.includes("\n") ||
+        trimmedPath.includes("\t")
+      ) {
+        newErrors.path = "Path cannot contain spaces or line breaks";
+      }
     }
 
     if (!responseBody.trim()) {
@@ -96,10 +169,18 @@ export default function OverrideForm({
       newErrors.baseApiId = "Base API is required";
     }
 
-    // Validate JSON fields
+    // Validate JSON fields - must be valid JSON if provided
     if (headers.trim()) {
       try {
-        JSON.parse(headers);
+        const parsed = JSON.parse(headers.trim());
+        // Headers should be an object (not array, not null, not primitive)
+        if (
+          typeof parsed !== "object" ||
+          parsed === null ||
+          Array.isArray(parsed)
+        ) {
+          newErrors.headers = "Headers must be valid JSON";
+        }
       } catch {
         newErrors.headers = "Headers must be valid JSON";
       }
@@ -107,18 +188,20 @@ export default function OverrideForm({
 
     if (body.trim()) {
       try {
-        JSON.parse(body);
+        JSON.parse(body.trim());
       } catch {
         newErrors.body = "Body must be valid JSON";
       }
     }
 
-    try {
-      JSON.parse(responseBody);
-    } catch {
-      // Response body can be plain text or JSON
-      if (!responseBody.trim()) {
-        newErrors.responseBody = "Response body is required";
+    // Validate responseBody - must always be valid JSON
+    if (!responseBody.trim()) {
+      newErrors.responseBody = "Response body is required";
+    } else {
+      try {
+        JSON.parse(responseBody.trim());
+      } catch {
+        newErrors.responseBody = "Response body must be valid JSON";
       }
     }
 
@@ -136,19 +219,57 @@ export default function OverrideForm({
     setIsSaving(true);
 
     try {
+      // Parse JSON fields with validation (should already be validated, but double-check)
+      let parsedHeaders: Record<string, string> | undefined;
+      if (headers.trim()) {
+        try {
+          const parsed = JSON.parse(headers.trim());
+          if (
+            typeof parsed === "object" &&
+            parsed !== null &&
+            !Array.isArray(parsed)
+          ) {
+            parsedHeaders = parsed;
+          } else {
+            addToast("Headers must be a valid JSON object", "error");
+            setIsSaving(false);
+            return;
+          }
+        } catch {
+          addToast("Headers must be valid JSON", "error");
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      let parsedBody: unknown | undefined;
+      if (body.trim()) {
+        try {
+          parsedBody = JSON.parse(body.trim());
+        } catch {
+          addToast("Body must be valid JSON", "error");
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      // Parse responseBody - must always be valid JSON
+      let parsedResponseBody: unknown;
+      try {
+        parsedResponseBody = JSON.parse(responseBody.trim());
+      } catch {
+        addToast("Response body must be valid JSON", "error");
+        setIsSaving(false);
+        return;
+      }
+
       const data: CreateOverrideInput | UpdateOverrideInput = {
         method,
         path: path.trim(),
-        headers: headers.trim() ? JSON.parse(headers) : undefined,
-        body: body.trim() ? JSON.parse(body) : undefined,
+        headers: parsedHeaders,
+        body: parsedBody,
         status,
-        responseBody: (() => {
-          try {
-            return JSON.parse(responseBody);
-          } catch {
-            return responseBody;
-          }
-        })(),
+        responseBody: parsedResponseBody,
         baseApiId: baseApiId || null,
       };
 
@@ -204,13 +325,11 @@ export default function OverrideForm({
           </SelectContent>
         </Select>
         {errors.baseApiId && (
-          <Alert variant="destructive">
-            <AlertDescription>{errors.baseApiId}</AlertDescription>
-          </Alert>
+          <p className="text-sm text-destructive mt-1">{errors.baseApiId}</p>
         )}
         <p className="text-xs text-muted-foreground">
-          The base API that will be used when proxying requests that don't match
-          this override
+          The base API that will be used when proxying requests that don&apos;t
+          match this override
         </p>
       </div>
 

@@ -58,6 +58,12 @@
   }
 }
 
+@layer utilities {
+  .text-destructive {
+    color: hsl(var(--destructive));
+  }
+}
+
 @keyframes slideIn {
   from {
     transform: translateX(100%);
