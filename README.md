@@ -58,6 +58,9 @@ DATABASE_URL="postgresql://user:password@host:port/database?schema=public"
 
 # Base APIs configuration (format: name1:url1,name2:url2)
 BASE_APIS="production:https://api.example.com,staging:https://staging-api.example.com"
+
+# Optional shared secret for trusted SSR/customer proxy IP forwarding
+OVERRIDE_PROXY_SECRET=""
 ```
 
 #### Run migrations
@@ -103,6 +106,19 @@ Each API is specified as `name:url` where:
 - `url` is the base URL of the API
 
 Multiple APIs are separated by commas. The first API in the list is used as the default.
+
+### Trusted SSR User IP Forwarding
+
+When a customer app calls API Overrides from a server-side runtime, API Overrides normally sees the customer server IP instead of the browser user's IP. To preserve per-user-IP override matching, configure the same non-empty `OVERRIDE_PROXY_SECRET` in API Overrides and the customer server app.
+
+The customer server app should forward:
+
+```txt
+x-override-client-ip: <real user ip>
+x-override-proxy-secret: <shared secret>
+```
+
+API Overrides trusts `x-override-client-ip` only when `x-override-proxy-secret` matches `OVERRIDE_PROXY_SECRET`. These internal headers are stripped before proxying to the upstream/base API.
 
 ### Web UI
 

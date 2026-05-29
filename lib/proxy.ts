@@ -1,4 +1,5 @@
 import type { ApiConfig } from '@/types/api'
+import { stripInternalOverrideHeaders } from '@/lib/internal-headers'
 
 interface ProxyRequest {
   method: string
@@ -16,12 +17,11 @@ export async function proxyRequest(
 ): Promise<Response> {
   const targetUrl = new URL(request.url, config.baseUrl).toString()
 
-  // Pass through all request headers without comparison or filtering
-  // Only add auth headers from config and remove host header
-  const headers: Record<string, string> = {
+  // Pass through request headers plus auth headers, excluding internal proxy headers.
+  const headers: Record<string, string> = stripInternalOverrideHeaders({
     ...request.headers,
     ...(config.authHeaders || {}),
-  }
+  })
 
   // Remove host header as it will be set by fetch
   delete headers['host']
@@ -93,4 +93,3 @@ export async function proxyRequest(
     )
   }
 }
-

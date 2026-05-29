@@ -56,6 +56,13 @@ export async function POST(request: NextRequest) {
     // Get client IP address for all imported overrides
     const clientIP = getClientIP(request)
 
+    if (!clientIP) {
+      return NextResponse.json(
+        { error: 'Unable to determine client IP address' },
+        { status: 400 }
+      )
+    }
+
     for (const override of importData.overrides) {
       try {
         // Validate required fields

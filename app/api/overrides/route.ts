@@ -68,6 +68,13 @@ export async function POST(request: NextRequest) {
     // Get client IP address (normalized) for duplicate check
     const clientIP = getClientIP(request)
 
+    if (!clientIP) {
+      return NextResponse.json(
+        { error: 'Unable to determine client IP address' },
+        { status: 400 }
+      )
+    }
+
     // Check for duplicate override (including IP address)
     const isDuplicate = await checkDuplicateOverride(
       body.method,
@@ -121,4 +128,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-

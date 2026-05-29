@@ -4,6 +4,7 @@ import { findMatchingOverride } from '@/lib/matching'
 import { proxyRequest } from '@/lib/proxy'
 import { getBaseApisFromEnv } from '@/lib/env-config'
 import { getClientIP } from '@/lib/get-client-ip'
+import { isInternalOverrideHeader } from '@/lib/internal-headers'
 import { compareIPs } from '@/lib/ip-utils'
 
 /**
@@ -98,7 +99,9 @@ async function handleRequest(
     // Parse request headers
     const headers: Record<string, string> = {}
     request.headers.forEach((value, key) => {
-      headers[key] = value
+      if (!isInternalOverrideHeader(key)) {
+        headers[key] = value
+      }
     })
 
     // Parse request body if present
@@ -166,7 +169,10 @@ async function handleRequest(
       const responseHeaders: Record<string, string> = {}
       request.headers.forEach((value, key) => {
         // Skip certain headers that shouldn't be forwarded
-        if (!['host', 'connection', 'content-length', 'transfer-encoding'].includes(key.toLowerCase())) {
+        if (
+          !['host', 'connection', 'content-length', 'transfer-encoding'].includes(key.toLowerCase()) &&
+          !isInternalOverrideHeader(key)
+        ) {
           responseHeaders[key] = value
         }
       })
@@ -198,13 +204,12 @@ async function handleRequest(
     // Build full URL for proxy (searchParams already extracted above)
     const fullPath = path + (searchParams ? `?${searchParams}` : '')
 
-    // Proxy to main API - pass all headers through without comparison
-    // Headers are only used for override matching above, not for filtering when proxying
+    // Proxy to main API with internal override headers removed.
     const proxyResponse = await proxyRequest(
       {
         method: request.method,
         url: fullPath,
-        headers, // All original request headers passed through
+        headers,
         body,
       },
       {
@@ -241,4 +246,3 @@ async function handleRequest(
     )
   }
 }
-
